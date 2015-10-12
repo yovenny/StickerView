@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="@dimen/tab_item_height"
+    android:background="#fff"
+    android:id="@+id/tab_bar_relative"
+    android:layout_width="match_parent">
+
+    <RadioGroup
+        android:gravity="center"
+        android:id="@+id/tabs_group"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:paddingBottom="1dp" />
+
+    <!-- marginLeft will be adjusted in code -->
+
+    <View
+        android:id="@+id/tab_indicator"
+        android:layout_width="match_parent"
+        android:layout_height="2.5dp"
+        android:layout_alignParentBottom="true"
+        android:background="#5fc344" />
+
+    <View
+        android:id="@+id/dark_line"
+        android:layout_width="0dp"
+        android:layout_height="1px"
+        android:background="#d1d1d1"
+        android:layout_alignLeft="@id/tabs_group"
+        android:layout_alignRight="@id/tabs_group"
+        android:layout_alignParentBottom="true"/>
+</RelativeLayout>

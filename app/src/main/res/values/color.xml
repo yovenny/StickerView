@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <drawable name="process_comment_bg_color">#1c211c</drawable>
+    <color name="process_comment_bg_color">#1c211c</color>
+    <color name="white">#ffffffff</color>
+
+    <color name="common_front_color">#5fc344</color>
+    <color name="tab_title_text_color">#808080</color>
+    <color name="common_item_bg_color">#ffffffff</color>
+    <color name="process_text_check_text_color">#5b5b5b</color>
+    <drawable name="process_bottom_color">#292E29</drawable>
+
+</resources>

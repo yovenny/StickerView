@@ -4,5 +4,10 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
     </style>
+    <!-- Base application theme. -->
+    <style name="WaterTitleTheme" parent="AppTheme">
+        <!-- set the height of Action Bar . -->
+        <item name="actionBarSize">39dip</item>
+    </style>
 
 </resources>

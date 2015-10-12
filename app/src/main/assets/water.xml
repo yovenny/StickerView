@@ -1,0 +1,487 @@
+<?xml version="1.0" encoding="utf-8"?>
+<water>
+    <!--水印的初始数据-->
+    <!--水印分组的数据 cid name-->
+    <!--2   态度-->
+    <!--6   创意-->
+    <!--7   球队-->
+    <!--8   球鞋-->
+
+
+    <waterCategories>
+        <!--2   态度-->
+        <waterCategory id="2">
+            <name>态度</name>
+            <status>1</status>
+        </waterCategory>
+        <!--6   创意-->
+        <waterCategory id="6">
+            <name>创意</name>
+            <status>1</status>
+        </waterCategory>
+        <!--7   球队-->
+        <waterCategory id="7">
+            <name>球队</name>
+            <status>1</status>
+        </waterCategory>
+        <!--8   球鞋-->
+        <waterCategory id="8">
+            <name>球鞋</name>
+            <status>1</status>
+        </waterCategory>
+    </waterCategories>
+
+    <!--水印项的数据  wid name categoryId imageId-->
+    <!--1   兄弟    2   17807-->
+    <!--2   天王山  2   17812-->
+    <!--3   天才孤独    2   17813-->
+    <!--4   贝影远去    2   17814-->
+    <!--5   战斗    2   17815-->
+    <!--6   风  2   17816-->
+    <!--7   信仰    2   17817-->
+    <!--8   枪王之王    2   17818-->
+    <!--9   英雄不老    2   17819-->
+    <!--10  goal1   2   17820-->
+    <!--11  goal2   2   17821-->
+    <!--12  38秒    6   17823-->
+    <!--13  阵中    6   17825-->
+    <!--14  阵亡    6   17827-->
+    <!--15  护球    6   17828-->
+    <!--16  落雨 01 6   17831-->
+    <!--17  落雨 02 6   17832-->
+    <!--18  落雨 03 6   17833-->
+    <!--19  巴塞 01 7   17834-->
+    <!--20  巴塞 02 7   17835-->
+    <!--21  拜仁    7   17836-->
+    <!--23  皇马    7   17842-->
+    <!--24  利物浦  7   17846-->
+    <!--25  曼联    7   17847-->
+    <!--26  尤文图斯    7   17848-->
+    <!--27  切尔西  7   17849-->
+    <!--28  车路士  7   17850-->
+    <!--29  恒大 01 7   17851-->
+    <!--30  恒大 02 7   17852-->
+    <!--31  鲁能 01 7   17853-->
+    <!--32  鲁能 02 7   17854-->
+    <!--33  国安    7   17855-->
+    <!--34  建业    7   17856-->
+    <!--35  毒蜂    8   17860-->
+    <!--36  flyknit 8   17861-->
+    <!--37  刺客    8   17862-->
+    <!--38  鬼牌    8   17863-->
+    <!--39  传奇    8   17864-->
+    <!--40  狂战士  8   17865-->
+    <!--41  猎鹰    8   17866-->
+    <!--42  释迦    8   17867-->
+    <!--43  F50 8   17868-->
+
+<!--two time-->
+
+    <!--1   兄弟    2   17807-->
+    <!--2   天王山  2   17812-->
+    <!--3   天才孤独    2   17813-->
+    <!--4   贝影远去    2   17814-->
+    <!--5   战斗    2   17815-->
+    <!--6   风  2   17816-->
+    <!--7   信仰    2   17817-->
+    <!--8   枪王之王    2   17818-->
+    <!--9   英雄不老    2   17819-->
+    <!--10  goal1   2   17820-->
+    <!--11  goal2   2   17821-->
+    <!--12  38秒    6   17823-->
+    <!--13  阵中    6   17825-->
+    <!--14  阵亡    6   17827-->
+    <!--15  护球    6   17828-->
+    <!--16  落雨 01 6   17831-->
+    <!--17  落雨 02 6   17832-->
+    <!--18  落雨 03 6   17833-->
+    <!--19  巴塞 01 7   17834-->
+    <!--20  巴塞 02 7   17835-->
+    <!--21  拜仁    7   17836-->
+    <!--23  皇马    7   17842-->
+    <!--24  利物浦  7   17846-->
+    <!--25  曼联    7   17847-->
+    <!--26  尤文图斯    7   17848-->
+    <!--27  切尔西  7   17849-->
+    <!--28  车路士  7   17850-->
+    <!--35  毒蜂    8   17860-->
+    <!--36  flyknit 8   17861-->
+    <!--37  刺客    8   17862-->
+    <!--38  鬼牌    8   17863-->
+    <!--39  传奇    8   17864-->
+    <!--40  狂战士  8   17865-->
+    <!--41  猎鹰    8   17866-->
+    <!--42  释迦    8   17867-->
+    <!--43  F50 8   17868-->
+
+    <!--47  AC米兰  7   19473-->
+    <!--48  阿森纳  7   19476-->
+    <!--49  国际米兰    7   19477-->
+    <!--50  建业    7   19478-->
+    <!--51  绿城    7   19479-->
+    <!--54  富力    7   19483-->
+    <!--55  鲁能    7   19485-->
+    <!--56  国安    7   19486-->
+    <!--57  申花    7   19487-->
+    <!--58  恒大01  7   19488-->
+    <!--59  恒大02  7   19489-->
+    <!--60  always  2   19490-->
+    <!--61  粤撑粤勇    2   19492-->
+    <!--62  专治不服    2   19494-->
+
+    <waterItems>
+        <!--1   兄弟    2   17807-->
+        <waterItem id="1">
+            <name>兄弟</name>
+            <categoryId>2</categoryId>
+            <imageId>17807</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--2   天王山  2   17812-->
+        <waterItem id="2">
+            <name>天王山</name>
+            <categoryId>2</categoryId>
+            <imageId>17812</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--3   天才孤独    2   17813-->
+        <waterItem id="3">
+            <name>天才孤独</name>
+            <categoryId>2</categoryId>
+            <imageId>17813</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--4   贝影远去    2   17814-->
+        <waterItem id="4">
+            <name>贝影远去</name>
+            <categoryId>2</categoryId>
+            <imageId>17814</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--5   战斗    2   17815-->
+        <waterItem id="5">
+            <name>战斗</name>
+            <categoryId>2</categoryId>
+            <imageId>17815</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--6   风  2   17816-->
+        <waterItem id="6">
+            <name>风</name>
+            <categoryId>2</categoryId>
+            <imageId>17816</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--7   信仰    2   17817-->
+        <waterItem id="7">
+            <name>信仰</name>
+            <categoryId>2</categoryId>
+            <imageId>17817</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--8   枪王之王    2   17818-->
+        <waterItem id="8">
+            <name>枪王之王</name>
+            <categoryId>2</categoryId>
+            <imageId>17818</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--9   英雄不老    2   17819-->
+        <waterItem id="9">
+            <name>英雄不老</name>
+            <categoryId>2</categoryId>
+            <imageId>17819</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--10  goal1   2   17820-->
+        <waterItem id="10">
+            <name>goal1</name>
+            <categoryId>2</categoryId>
+            <imageId>17820</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--11  goal2   2   17821-->
+        <waterItem id="11">
+            <name>goal2</name>
+            <categoryId>2</categoryId>
+            <imageId>17821</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--12  38秒    6   17823-->
+        <waterItem id="12">
+            <name>38秒</name>
+            <categoryId>6</categoryId>
+            <imageId>17823</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--13  阵中    6   17825-->
+        <waterItem id="13">
+            <name>阵中</name>
+            <categoryId>6</categoryId>
+            <imageId>17825</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--14  阵亡    6   17827-->
+        <waterItem id="14">
+            <name>阵亡</name>
+            <categoryId>6</categoryId>
+            <imageId>17827</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--15  护球    6   17828-->
+        <waterItem id="15">
+            <name>护球</name>
+            <categoryId>6</categoryId>
+            <imageId>17828</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--16  落雨 01 6   17831-->
+        <waterItem id="16">
+            <name>落雨 01</name>
+            <categoryId>6</categoryId>
+            <imageId>17831</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--17  落雨 02 6   17832-->
+        <waterItem id="17">
+            <name>落雨 02</name>
+            <categoryId>6</categoryId>
+            <imageId>17832</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--18  落雨 03 6   17833-->
+        <waterItem id="18">
+            <name>落雨 03</name>
+            <categoryId>6</categoryId>
+            <imageId>17833</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--19  巴塞 01 7   17834-->
+        <waterItem id="19">
+            <name>巴塞 01</name>
+            <categoryId>7</categoryId>
+            <imageId>17834</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--20  巴塞 02 7   17835-->
+        <waterItem id="20">
+            <name>巴塞 02</name>
+            <categoryId>7</categoryId>
+            <imageId>17835</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--21  拜仁    7   17836-->
+        <waterItem id="21">
+            <name>拜仁</name>
+            <categoryId>7</categoryId>
+            <imageId>17836</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--23  皇马    7   17842-->
+        <waterItem id="23">
+            <name>皇马</name>
+            <categoryId>7</categoryId>
+            <imageId>17842</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--24  利物浦  7   17846-->
+        <waterItem id="24">
+            <name>利物浦</name>
+            <categoryId>7</categoryId>
+            <imageId>17846</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--25  曼联    7   17847-->
+        <waterItem id="25">
+            <name>曼联</name>
+            <categoryId>7</categoryId>
+            <imageId>17847</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--26  尤文图斯    7   17848-->
+        <waterItem id="26">
+            <name>尤文图斯</name>
+            <categoryId>7</categoryId>
+            <imageId>17848</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--27  切尔西  7   17849-->
+        <waterItem id="27">
+            <name>切尔西</name>
+            <categoryId>7</categoryId>
+            <imageId>17849</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--28  车路士  7   17850-->
+        <waterItem id="28">
+            <name>车路士</name>
+            <categoryId>7</categoryId>
+            <imageId>17850</imageId>
+            <status>1</status>
+        </waterItem>
+
+        <!--35  毒蜂    8   17860-->
+        <waterItem id="35">
+            <name>毒蜂</name>
+            <categoryId>8</categoryId>
+            <imageId>17860</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--36  flyknit 8   17861-->
+        <waterItem id="36">
+            <name>flyknit</name>
+            <categoryId>8</categoryId>
+            <imageId>17861</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--37  刺客    8   17862-->
+        <waterItem id="37">
+            <name>刺客</name>
+            <categoryId>8</categoryId>
+            <imageId>17862</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--38  鬼牌    8   17863-->
+        <waterItem id="38">
+            <name>鬼牌</name>
+            <categoryId>8</categoryId>
+            <imageId>17863</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--39  传奇    8   17864-->
+        <waterItem id="39">
+            <name>传奇</name>
+            <categoryId>8</categoryId>
+            <imageId>17864</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--40  狂战士  8   17865-->
+        <waterItem id="40">
+            <name>狂战士</name>
+            <categoryId>8</categoryId>
+            <imageId>17865</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--41  猎鹰    8   17866-->
+        <waterItem id="41">
+            <name>猎鹰</name>
+            <categoryId>8</categoryId>
+            <imageId>17866</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--42  释迦    8   17867-->
+        <waterItem id="42">
+            <name>释迦</name>
+            <categoryId>8</categoryId>
+            <imageId>17867</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--43  F50 8   17868-->
+        <waterItem id="43">
+            <name>F50</name>
+            <categoryId>8</categoryId>
+            <imageId>17868</imageId>
+            <status>1</status>
+        </waterItem>
+
+        <!--47  AC米兰  7   19473-->
+        <waterItem id="47">
+            <name>AC米兰</name>
+            <categoryId>7</categoryId>
+            <imageId>19473</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--48  阿森纳  7   19476-->
+        <waterItem id="48">
+            <name>阿森纳</name>
+            <categoryId>7</categoryId>
+            <imageId>19476</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--49  国际米兰    7   19477-->
+        <waterItem id="49">
+            <name>国际米兰</name>
+            <categoryId>7</categoryId>
+            <imageId>19477</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--50  建业    7   19478-->
+        <waterItem id="50">
+            <name>建业</name>
+            <categoryId>7</categoryId>
+            <imageId>19478</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--51  绿城    7   19479-->
+        <waterItem id="51">
+            <name>绿城</name>
+            <categoryId>7</categoryId>
+            <imageId>19479</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--54  富力    7   19483-->
+        <waterItem id="54">
+            <name>富力</name>
+            <categoryId>7</categoryId>
+            <imageId>19483</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--55  鲁能    7   19485-->
+        <waterItem id="55">
+            <name>鲁能</name>
+            <categoryId>7</categoryId>
+            <imageId>19485</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--56  国安    7   19486-->
+        <waterItem id="56">
+            <name>国安</name>
+            <categoryId>7</categoryId>
+            <imageId>19486</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--57  申花    7   19487-->
+        <waterItem id="57">
+            <name>申花</name>
+            <categoryId>7</categoryId>
+            <imageId>19487</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--58  恒大01  7   19488-->
+        <waterItem id="58">
+            <name>恒大01</name>
+            <categoryId>7</categoryId>
+            <imageId>19488</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--59  恒大02  7   19489-->
+        <waterItem id="59">
+            <name>恒大02</name>
+            <categoryId>7</categoryId>
+            <imageId>19489</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--60  always  2   19490-->
+        <waterItem id="60">
+            <name>always</name>
+            <categoryId>2</categoryId>
+            <imageId>19490</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--61  粤撑粤勇    2   19492-->
+        <waterItem id="61">
+            <name>粤撑粤勇</name>
+            <categoryId>2</categoryId>
+            <imageId>19492</imageId>
+            <status>1</status>
+        </waterItem>
+        <!--62  专治不服    2   19494-->
+        <waterItem id="62">
+            <name>专治不服</name>
+            <categoryId>2</categoryId>
+            <imageId>19494</imageId>
+            <status>1</status>
+        </waterItem>
+    </waterItems>
+
+</water>

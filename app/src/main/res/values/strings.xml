@@ -3,4 +3,7 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+
+    <string name="process_text_max">最多添加15个文字水印~~</string>
+    <string name="process_stick_max">最多添加15个图片水印~~</string>
 </resources>
