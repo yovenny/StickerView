@@ -101,7 +101,7 @@
             android:layout_height="match_parent" />
 
         <RelativeLayout
-            android:visibility="gone"
+           android:visibility="gone"
             android:id="@+id/text_relative"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -130,7 +130,6 @@
 
 
             <ImageView
-
                 android:id="@+id/confirm_image"
                 android:layout_width="@dimen/common_dialog_btn_width_height"
                 android:layout_height="@dimen/common_dialog_btn_width_height"
