@@ -49,6 +49,7 @@ import com.yovenny.stickview.wedget.sticker.StickerSeriesView;
 import com.yovenny.stickview.wedget.sticker.TextStick;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 public class WaterActivity extends BaseActivity implements View.OnClickListener {
@@ -66,7 +67,8 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
     private TabBarView mTab;
     private WaterAdapter mWaterAdapter;
     private StickerSeriesView mSticker;
-    RecyclerView mRecyclerView;
+    private RecyclerView mRecyclerView;
+    private LinearLayoutManager mLinearLayoutManager;
 
     private ImageView mTextImage;
     private ImageView mWaterTipImage;
@@ -115,7 +117,6 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
     }
 
 
-
     public void initUI() {
         mImageView = (ImageView) findViewById(R.id.imageViewPhoto);
         mSticker = (StickerSeriesView) findViewById(R.id.process_sticker);
@@ -126,14 +127,14 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
         mWaterMarkRadio.setOnClickListener(this);
         mTextRelative = (RelativeLayout) findViewById(R.id.text_relative);
 
-        mInputCancelImage= (ImageView) findViewById(R.id.cancel_image);
-        mInputConfirmImage= (ImageView) findViewById(R.id.confirm_image);
-        mInputEdit= (EditText) findViewById(R.id.gather_edit);
+        mInputCancelImage = (ImageView) findViewById(R.id.cancel_image);
+        mInputConfirmImage = (ImageView) findViewById(R.id.confirm_image);
+        mInputEdit = (EditText) findViewById(R.id.gather_edit);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.watermark_list);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
-        mRecyclerView.setLayoutManager(layoutManager);
+        mLinearLayoutManager = new LinearLayoutManager(this);
+        mLinearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        mRecyclerView.setLayoutManager(mLinearLayoutManager);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
@@ -174,29 +175,31 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
         final List<WaterMarkCategory> categoryList = dbManager.getWaterCategoryDAO().findValid();
 
         if (categoryList.size() > 0) {
-//            final List nextXs = new ArrayList();
+            final List<Integer> nextXs = new ArrayList<>();
             for (WaterMarkCategory waterMarkCategory : categoryList) {
                 waterMarkCategory.setWaterMarkItems(dbManager.getWaterItemDAO().findValid(waterMarkCategory.getCid()));
                 mTab.addOrigin(createRadioButton(waterMarkCategory.getName()));
-//                nextXs.add(0);
+                nextXs.add(0);
             }
             if (categoryList.size() <= 6) {
                 mTab.limitInScreen(true);
             }
-            mWaterAdapter = new WaterAdapter(this, null);
+            mTab.setCheckAt(0);
+            mWaterAdapter = new WaterAdapter(this, categoryList.get(0).waterMarkItems);
             mRecyclerView.setAdapter(mWaterAdapter);
             mTab.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(RadioGroup group, int checkedId) {
                     //更改水印的适配器
-//                    nextXs.set(mLastCheck, mRecyclerView.getpo());
+                    nextXs.set(mLastCheck, mLinearLayoutManager.findFirstVisibleItemPosition());
                     final int index = group.indexOfChild(group.findViewById(checkedId));
                     mLastCheck = index;
                     final WaterMarkCategory tempCategory = categoryList.get(index);
                     mWaterAdapter.notifyDataSetChange(tempCategory.waterMarkItems);
+                    mLinearLayoutManager.scrollToPositionWithOffset(nextXs.get(index),0);//并不能准确选中上一次的选择
                 }
             });
-            mTab.setCheckAt(0);
+
             mWaterAdapter.setOnItemClickListener(new WaterAdapter.OnRecyclerViewItemClickListener() {
                 @Override
                 public void onItemClick(View view, int position) {
@@ -346,8 +349,8 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
                 } else {
                     Global.popSoftkeyboard(WaterActivity.this, mInputEdit, false);
                     toogleModifyText();
-                    Bitmap tempTextBitmap = BitmapUtil.createWarpBitmap(WaterActivity.this, gatherText,Color.BLACK);
-                    Stick stick=new TextStick(tempTextBitmap,gatherText);
+                    Bitmap tempTextBitmap = BitmapUtil.createWarpBitmap(WaterActivity.this, gatherText, Color.BLACK);
+                    Stick stick = new TextStick(tempTextBitmap, gatherText);
                     mSticker.setStick(stick);
                 }
                 break;
@@ -379,7 +382,7 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
         mSticker.createFinalBitmap(mOriginalPhotoPath, new StickerSeriesView.OnSaveResultListener() {
             @Override
             public void onSaveResult(String saveFile) {
-               hideWaitDialog();
+                hideWaitDialog();
                 if (isNeedResult) {
                     Intent intent = new Intent();
                     intent.putExtra(ADD_TOPIC_PIC, saveFile);
