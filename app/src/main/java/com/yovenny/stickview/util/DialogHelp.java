@@ -7,10 +7,6 @@ import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.text.TextUtils;
 
-/**
- * 对话框辅助类
- * Created by 火蚁 on 15/6/19.
- */
 public class DialogHelp {
 
     /***

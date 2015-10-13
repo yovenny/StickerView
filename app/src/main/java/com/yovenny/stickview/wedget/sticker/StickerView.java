@@ -1,12 +1,6 @@
 package com.yovenny.stickview.wedget.sticker;
 /**
  * Summary: 水印标签自定义操作
- * Version 0.2.0
- * Author: chenbc@jugame.com.cn
- * Company: www.mjgame.cn
- * Date: 15-5-11
- * Time: 上午11:14
- * Copyright: Copyright (c) 2014
  */
 
 import android.app.Activity;
@@ -34,7 +28,6 @@ import com.yovenny.stickview.Constant;
 import com.yovenny.stickview.R;
 import com.yovenny.stickview.util.BitmapUtil;
 import com.yovenny.stickview.util.Convert;
-import com.yovenny.stickview.util.Ln;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -684,8 +677,6 @@ public class StickerView extends ImageView {
         matrixCheck(inMatrix, p, bitmap);
 //      if(dst[0] > 0 && dst[0] < bitmap.getWidth() && dst[1] > 0 && dst[1] < bitmap.getHeight())
         inMatrix.mapPoints(dst, new float[]{x_down, y_down});
-        Ln.i("dst[0]" + dst[0] + ":----dst[1]" + dst[1]);
-        Ln.i("x_down" + x_down + ":----y_down" + y_down);
         if (p[0] <= x_down && x_down <= p[2] && p[1] <= y_down && y_down <= p[5]) {
             return true;
         }
@@ -725,7 +716,7 @@ public class StickerView extends ImageView {
         ps[6] = f[Matrix.MSCALE_X] * bitmap.getWidth() + f[Matrix.MSKEW_X] * bitmap.getHeight() + f[Matrix.MTRANS_X];
         ps[7] = f[Matrix.MSKEW_Y] * bitmap.getWidth() + f[Matrix.MSCALE_Y] * bitmap.getHeight() + f[Matrix.MTRANS_Y];
 /**
- * 强哥整理
+ * another
  */
 //        float cos = f[0];
 //        float sin = f[3];
@@ -880,6 +871,9 @@ public class StickerView extends ImageView {
         }
     }
 
+    /**
+     * TODO 根据屏幕大小裁剪
+     */
     @Deprecated
     public Bitmap creatFavouritePhoto(Bitmap bgBitmap) {
         Paint bitmapPaint = new Paint();
@@ -1106,8 +1100,6 @@ public class StickerView extends ImageView {
         mBgWidth = bgWidth;
         mBgHeight = bgHeight;
     }
-
-
 
     public void setTextBitmap(Bitmap textBitmap) {
         if (isHidTextFrame) {

@@ -1,7 +1,7 @@
 package com.yovenny.stickview.util;
 
 public class Ln {
-    private static final String LOG_TAG = "Knife";
+    public static final String LOG_TAG = "Knife";
     public static final boolean DEBUG = true;
 
     private static void log (int type, String message) {

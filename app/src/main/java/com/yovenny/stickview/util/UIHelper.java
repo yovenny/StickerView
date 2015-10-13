@@ -5,7 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.yovenny.stickview.ui.ResultActivity;
 import com.yovenny.stickview.ui.WaterActivity;
+
+import java.util.ArrayList;
 
 /**
  * 页面统一跳转帮助类
@@ -46,6 +49,27 @@ public class UIHelper {
         intent.putExtra("process_path", path);
         context.startActivity(intent);
     }
+
+    /**
+     * 跳转发话题界面
+     */
+    public static void showResultActivity(Context context, String savePath,ArrayList categoryIds,ArrayList watermarkIds,ArrayList contents) {
+            Intent intent = new Intent(context, ResultActivity.class);
+            intent.putExtra(WaterActivity.ADD_TOPIC_PIC, savePath);
+            intent.putExtra("watermarkCategoryIds",categoryIds);
+            intent.putExtra("watermarkIds",watermarkIds);
+            intent.putExtra("contents",contents);
+            launchIntent(context, intent, false);
+    }
+
+    public static void launchIntent(Context context, Intent intent, boolean isNewTask) {
+        if (isNewTask) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        }
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        context.startActivity(intent);
+    }
+
 }
 
 

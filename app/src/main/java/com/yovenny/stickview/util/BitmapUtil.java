@@ -696,5 +696,18 @@ public class BitmapUtil {
         return compressImage(bitmap);//压缩好比例大小后再进行质量压缩
     }
 
+    //以下图片压缩放
+    public static Bitmap getThumbBitmap(File file) {
+        ByteArrayOutputStream baos = StreamUtil.getByteArrayOSFromFile(file);
+        // 保存原始参数
+        BitmapFactory.Options orgOpts = BitmapUtil.getOrgImageOpts(baos);
+
+        orgOpts.inSampleSize = BitmapUtil.calculateInSampleSize(orgOpts, 1080, 1);
+        // Log.d("outWidth:" + opts.outWidth + " outHeight:" + opts.outHeight + " sampleSize:" + opts.inSampleSize);
+        Bitmap scaledBmp = BitmapUtil.decodeBmpFromOS(baos, orgOpts, 0, 1080);
+        return scaledBmp;
+    }
+
+
 }
 

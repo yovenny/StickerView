@@ -6,28 +6,26 @@ package com.yovenny.stickview.ui;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.yovenny.stickview.Constant;
@@ -40,23 +38,17 @@ import com.yovenny.stickview.model.WaterMarkCategory;
 import com.yovenny.stickview.model.WaterMarkItem;
 import com.yovenny.stickview.util.BitmapUtil;
 import com.yovenny.stickview.util.Convert;
-import com.yovenny.stickview.util.FileUtil;
-import com.yovenny.stickview.util.Ln;
+import com.yovenny.stickview.util.Global;
 import com.yovenny.stickview.util.MediaUtils;
-import com.yovenny.stickview.util.PhotoUtils;
-import com.yovenny.stickview.util.StreamUtil;
+import com.yovenny.stickview.util.UIHelper;
 import com.yovenny.stickview.wedget.ScaleRadioButton;
 import com.yovenny.stickview.wedget.TabBarView;
 import com.yovenny.stickview.wedget.sticker.ImgStick;
 import com.yovenny.stickview.wedget.sticker.Stick;
 import com.yovenny.stickview.wedget.sticker.StickerSeriesView;
+import com.yovenny.stickview.wedget.sticker.TextStick;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.util.List;
 
 public class WaterActivity extends BaseActivity implements View.OnClickListener {
@@ -69,8 +61,7 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
     private String mOriginalPhotoPath = null;
     private Bitmap mBitmap = null;
     private ImageView mImageView = null;
-    private static SavePhotoTask sSavePhotoTask;
-    private static  Handler mHandle = new Handler();
+    private static Handler mHandle = new Handler();
 
     private TabBarView mTab;
     private WaterAdapter mWaterAdapter;
@@ -80,11 +71,15 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
     private ImageView mTextImage;
     private ImageView mWaterTipImage;
     private TextView mWaterMarkRadio;
+    private RelativeLayout mTextRelative;
 
-    //图片的处理时间，调试之用
-    private long mProcessTimeMillion;
     private boolean isNeedResult;
     private int mLastCheck;
+
+    //文字输入相关
+    private ImageView mInputCancelImage;
+    private ImageView mInputConfirmImage;
+    private EditText mInputEdit;
 
     @Override
     public void initView() {
@@ -96,7 +91,7 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
 
     @Override
     protected int getLayoutId() {
-        return R.layout.page_process;
+        return R.layout.activity_water;
     }
 
     @Override
@@ -120,9 +115,6 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
     }
 
 
-    private void hideLoadingDialog() {
-
-    }
 
     public void initUI() {
         mImageView = (ImageView) findViewById(R.id.imageViewPhoto);
@@ -132,6 +124,11 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
         mTextImage = (ImageView) findViewById(R.id.text_image);
         mTab = (TabBarView) findViewById(R.id.tabs);
         mWaterMarkRadio.setOnClickListener(this);
+        mTextRelative = (RelativeLayout) findViewById(R.id.text_relative);
+
+        mInputCancelImage= (ImageView) findViewById(R.id.cancel_image);
+        mInputConfirmImage= (ImageView) findViewById(R.id.confirm_image);
+        mInputEdit= (EditText) findViewById(R.id.gather_edit);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.watermark_list);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -141,6 +138,8 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
         mTextImage.setOnClickListener(this);
+        mInputCancelImage.setOnClickListener(this);
+        mInputConfirmImage.setOnClickListener(this);
         mSticker.setOnStickDelListener(new StickerSeriesView.OnStickDelListener() {
             @Override
             public void onStickDel(int categoryId, int postion) {
@@ -164,10 +163,6 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
             }
         });
     }
-
-    private void toggleProcessTip() {
-    }
-
 
     private void initWaterMarkUI() {
         //获取水印的分类
@@ -247,7 +242,6 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
         }
     }
 
-
     private void initData() {
         isNeedResult = getIntent().getBooleanExtra("need_result", false);
         String processPath = getIntent().getStringExtra("process_path");
@@ -267,7 +261,7 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
 
     @Override
     protected void onPause() {
-        hideLoadingDialog();//hideProgressDialog();
+        hideWaitDialog();
         super.onPause();
     }
 
@@ -277,13 +271,6 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
         setIntent(intent);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (sSavePhotoTask != null) {
-            sSavePhotoTask.reattachActivity(this);
-        }
-    }
 
     @Override
     protected void onDestroy() {
@@ -304,59 +291,10 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_confirm) {
             //保存图片，跳到发表图片界面
-            onSaveSticker();
+            onStickSave();
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    public void onSaveSticker() {
-        mProcessTimeMillion = System.currentTimeMillis();
-        sSavePhotoTask = new SavePhotoTask(this);
-        sSavePhotoTask.execute();
-    }
-
-    private String savePhoto(Bitmap bitmap) {
-        File file = new File(mOriginalPhotoPath);
-        File saveDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/FootballD/Filter/");
-
-        if (!saveDir.exists()) {
-            saveDir.mkdirs();
-        } else {
-            if (!saveDir.isDirectory()) {
-                FileUtil.deleteDirectory(saveDir.getAbsolutePath());
-                saveDir.mkdirs();
-            }
-        }
-
-        String name = file.getName().substring(0, file.getName().lastIndexOf('.')) + "_";
-        int count = 0;
-        String format = String.format("%%0%dd", 3);
-        File saveFile;
-        do {
-            count++;
-            String filename = name + String.format(format, count) + ".jpg";
-            saveFile = new File(saveDir, filename);
-        } while (saveFile.exists());
-
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(saveFile);
-            bitmap.compress(CompressFormat.JPEG, 100, fos);
-            return saveFile.getAbsolutePath();
-        } catch (FileNotFoundException e) {
-            Log.w(TAG, e);
-        } finally {
-            if (fos != null) {
-                try {
-                    fos.flush();
-                    fos.close();
-                } catch (IOException e) {
-                    // Do nothing
-                }
-            }
-        }
-        return "";
     }
 
     private void loadPhoto(String path) {
@@ -369,7 +307,7 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
 //        mBitmap = BitmapUtil.getSampledBitmap(path, displayMetrics.widthPixels, displayMetrics.heightPixels);
 
 //TODO 图片压缩方式二
-        mBitmap = getThumbBitmap(new File(path));
+        mBitmap = BitmapUtil.getThumbBitmap(new File(path));
 
 //TODO 图片压缩方式三
 //        mBitmap = BitmapUtil.getBitmap(path);
@@ -398,138 +336,64 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.cancel_image:
+                toogleModifyText();
+                break;
+            case R.id.confirm_image:
+                String gatherText = mInputEdit.getText().toString();
+                if (TextUtils.isEmpty(gatherText)) {
+                    po("文字不能为空");
+                    return;
+                } else {
+                    Global.popSoftkeyboard(WaterActivity.this, mInputEdit, false);
+                    toogleModifyText();
+                    Bitmap tempTextBitmap = BitmapUtil.createWarpBitmap(WaterActivity.this, gatherText,Color.BLACK);
+                    Stick stick=new TextStick(tempTextBitmap,gatherText);
+                    mSticker.setStick(stick);
+                }
                 break;
             case R.id.watermark_radio:
-                if (mWaterTipImage.getVisibility() != View.VISIBLE) {
-                    toggleProcessTip();
-                }
                 break;
             case R.id.text_image:
                 if (mSticker.getTextCount() >= StickerSeriesView.STICK_TEXT_MAX_COUNT) {
                     po(getString(R.string.process_text_max));
                     return;
                 }
-//                showModifyDialog();
+                toogleModifyText();
                 break;
-
         }
     }
 
-    private class SavePhotoTask extends AsyncTask<Void, Void, Void> {
-        private WeakReference<WaterActivity> mActivityRef;
-        private String mSavePath;
-
-        public SavePhotoTask(WaterActivity activity) {
-            mActivityRef = new WeakReference<>(activity);
+    private void toogleModifyText() {
+        if (mTextRelative.getVisibility() == View.VISIBLE) {
+            mTextRelative.setVisibility(View.GONE);
+            mInputEdit.clearFocus();
+            mInputEdit.setText("");
+        } else {
+            mTextRelative.setVisibility(View.VISIBLE);
         }
+    }
 
-        public void reattachActivity(WaterActivity activity) {
-            mActivityRef = new WeakReference<>(activity);
-            if (getStatus().equals(Status.RUNNING)) {
-                activity.showLoadingDialog(true);
-            }
-        }
 
-        private WaterActivity getActivity() {
-            if (mActivityRef == null) {
-                return null;
-            }
-
-            return mActivityRef.get();
-        }
-
-        @Override
-        protected void onPreExecute() {
-            WaterActivity activity = getActivity();
-            if (activity != null) {
-                activity.showLoadingDialog(true);  //activity.showSavingProgressDialog();
-            }
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            WaterActivity activity = getActivity();
-            if (activity != null) {
-                try {
-                    //1、原图处理
-//                    File jpegFile = new File(activity.mOriginalPhotoPath);
-//                    byte[] jpegData = FileUtil.readFileToByteArray(jpegFile);
-//                    PhotoProcessing.nativeLoadResizedJpegBitmap(jpegData, jpegData.length,1024 * 1024 * 2);
-//                    Bitmap bitmap = PhotoProcessing.filterPhoto(null, activity.mCurrentFilter);
-
-                    //2、压缩后的bitmap
-//                    Bitmap   bitmap = BitmapUtil.getBitmap(mOriginalPhotoPath);
-                    Bitmap bitmap = getThumbBitmap(new File(mOriginalPhotoPath));
-                    Ln.i("bitmap edit and filter time ---" + (System.currentTimeMillis() - mProcessTimeMillion));
-                    mProcessTimeMillion = System.currentTimeMillis();
-                    //根据sticker可见判断状态,FIT_CENTER/fitCenter这里要对bitmap获取width and height
-                    Bitmap favouriteBitmap = null;
-                    try {
-//                        favouriteBitmap = mSticker.creatFavouriteFixWithPhoto(bitmap);
-                    } catch (OutOfMemoryError e) {
-                        while (favouriteBitmap == null) {
-                            System.gc();
-                            System.runFinalization();
-//                            favouriteBitmap = mSticker.creatFavouriteFixWithPhoto(bitmap);
-                        }
-                    }
-                    Ln.i("bitmap create favourite time ---" + (System.currentTimeMillis() - mProcessTimeMillion));
-                    mProcessTimeMillion = System.currentTimeMillis();
-                    mSavePath = activity.savePhoto(favouriteBitmap);
-                    PhotoUtils.fileScan(activity, mSavePath);
-                    if (favouriteBitmap != null && !favouriteBitmap.isRecycled()) {
-                        favouriteBitmap.recycle();
-                    }
-                    System.gc();
-                    Ln.i("bitmap save path time ---" + (System.currentTimeMillis() - mProcessTimeMillion));
-                } catch (Exception e) {
-                    Ln.i(e.getMessage());
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            WaterActivity activity = getActivity();
-            if (activity != null) {
-                activity.hideLoadingDialog();//activity.hideProgressDialog();
-//                Toast.makeText(activity, activity.getString(R.string.saved_photo_toast_message, mSavePath), Toast.LENGTH_LONG).show();
-                /**
-                 * 这里为保存图片成功后的处理，结果为：bitmap和path,现使用未经压缩的bitmap
-                 * 注意：bitmap过大时，传递bitmap到activity，可能跳不过去
-                 */
+    private void onStickSave() {
+        showWaitDialog();
+        mSticker.createFinalBitmap(mOriginalPhotoPath, new StickerSeriesView.OnSaveResultListener() {
+            @Override
+            public void onSaveResult(String saveFile) {
+               hideWaitDialog();
                 if (isNeedResult) {
                     Intent intent = new Intent();
-                    intent.putExtra(ADD_TOPIC_PIC, mSavePath);
+                    intent.putExtra(ADD_TOPIC_PIC, saveFile);
                     intent.putExtra("watermarkCategoryIds", mSticker.getStickCategoryIds());
                     intent.putExtra("watermarkIds", mSticker.getStickIds());
                     intent.putExtra("contents", mSticker.getTextContents());
                     setResult(PHOTO_RESULT, intent);
                 } else {
-//                    PageSwitch.go2AddTopicPage(activity, mSavePath,mSticker.getStickCategoryIds(),mSticker.getStickIds(),mSticker.getTextContents());
+                    UIHelper.showResultActivity(WaterActivity.this, saveFile, mSticker.getStickCategoryIds(), mSticker.getStickIds(), mSticker.getTextContents());
                 }
                 mSticker.destory();
                 finish();
             }
-        }
-    }
-
-    private void showLoadingDialog(boolean b) {
-
-    }
-
-
-    //以下图片压缩放
-    private Bitmap getThumbBitmap(File file) {
-        ByteArrayOutputStream baos = StreamUtil.getByteArrayOSFromFile(file);
-        // 保存原始参数
-        BitmapFactory.Options orgOpts = BitmapUtil.getOrgImageOpts(baos);
-
-        orgOpts.inSampleSize = BitmapUtil.calculateInSampleSize(orgOpts, 1080, 1);
-        // Log.d("outWidth:" + opts.outWidth + " outHeight:" + opts.outHeight + " sampleSize:" + opts.inSampleSize);
-        Bitmap scaledBmp = BitmapUtil.decodeBmpFromOS(baos, orgOpts, 0, 1080);
-        return scaledBmp;
+        });
     }
 
     @Override
@@ -555,7 +419,6 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
 
     private void loadFromCache() {
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-
         if (mBitmap != null) {
             mBitmap.recycle();
         }

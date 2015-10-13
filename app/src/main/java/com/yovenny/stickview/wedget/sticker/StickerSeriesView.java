@@ -20,21 +20,27 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.FloatMath;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 
 import com.yovenny.stickview.Constant;
 import com.yovenny.stickview.R;
+import com.yovenny.stickview.StickApp;
 import com.yovenny.stickview.util.BitmapUtil;
 import com.yovenny.stickview.util.Convert;
+import com.yovenny.stickview.util.FileUtil;
+import com.yovenny.stickview.util.Ln;
+import com.yovenny.stickview.util.PhotoUtils;
+import com.yovenny.stickview.util.TaskExecutor;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 
 
 //bitmap recycle 设置新的sticker text 将bitmap cycle
@@ -407,9 +413,9 @@ public class StickerSeriesView extends ImageView {
 //                    }
 
                     //需求2：点击隐藏所有水印边框?只要边框显示，state==hide，either：state==show
-                    if(getShowFrameCount()>0){
+                    if (getShowFrameCount() > 0) {
                         setFrameStutas(true);
-                    }else{
+                    } else {
                         setFrameStutas(false);
                     }
                     invalidate();
@@ -445,8 +451,8 @@ public class StickerSeriesView extends ImageView {
                      *  现需求不支持文字缩放，旋转,若支持，去掉此判断：代码冗余
                      */
 //                    if (stick instanceof ImgStick) {
-                        stick.transMatrix1.postRotate(displayRotation, stick.mid.x, stick.mid.y);
-                        stick.transMatrix1.postScale(scale, scale, stick.mid.x, stick.mid.y);// 縮放
+                    stick.transMatrix1.postRotate(displayRotation, stick.mid.x, stick.mid.y);
+                    stick.transMatrix1.postScale(scale, scale, stick.mid.x, stick.mid.y);// 縮放
 //                    }
                     matrixCheck(stick.transMatrix1, stick.sp, stick.stickBitmap);
                     stick.matrix.set(stick.transMatrix1);
@@ -456,14 +462,14 @@ public class StickerSeriesView extends ImageView {
                      *  现需求不支持文字缩放，旋转,若支持，去掉此判断：代码冗余
                      */
 //                    if (stick instanceof ImgStick) {
-                        stick.frameTransMatrix1.postRotate(displayRotation, stick.mid.x, stick.mid.y);
+                    stick.frameTransMatrix1.postRotate(displayRotation, stick.mid.x, stick.mid.y);
 //                    }
                     if (spacing(stick.sp[0], stick.sp[1], stick.sp[4], stick.sp[5]) < (stick instanceof ImgStick ? MIN_STICK_SCALE_HEIGHT : MIN_TEXT_SCALE_HEIGHT)) {
                         /**
                          *  现需求不支持文字缩放，旋转,若支持，去掉此判断：代码冗余
                          */
 //                        if (stick instanceof ImgStick) {
-                            stick.frameTransMatrix1.postScale(stick.minSacle, stick.minSacle, stick.mid.x, stick.mid.y);// 縮放
+                        stick.frameTransMatrix1.postScale(stick.minSacle, stick.minSacle, stick.mid.x, stick.mid.y);// 縮放
 //                        }
                         matrixCheck(stick.frameTransMatrix1, stick.fp, stick.stickBitmap);
                     } else {
@@ -471,7 +477,7 @@ public class StickerSeriesView extends ImageView {
                          *  现需求不支持文字缩放，旋转,若支持，去掉此判断：代码冗余
                          */
 //                        if (stick instanceof ImgStick) {
-                            stick.frameTransMatrix1.postScale(scale, scale, stick.mid.x, stick.mid.y);// 縮放
+                        stick.frameTransMatrix1.postScale(scale, scale, stick.mid.x, stick.mid.y);// 縮放
 //                        }
                         matrixCheck(stick.frameTransMatrix1, stick.fp, stick.stickBitmap);
                     }
@@ -973,10 +979,85 @@ public class StickerSeriesView extends ImageView {
         return showFrameCount;
     }
 
-    public void setFrameStutas(boolean isHideFrame){
+    public void setFrameStutas(boolean isHideFrame) {
         for (Stick stick : mStickList) {
-            stick.isHideFrame=isHideFrame;
+            stick.isHideFrame = isHideFrame;
         }
     }
+
+
+
+    public void createFinalBitmap(final String originPath, final OnSaveResultListener listener) {
+        TaskExecutor.executeTask(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String savePath;
+                    //2、压缩后的bitmap
+                    //Bitmap   bitmap = BitmapUtil.getBitmap(mOriginalPhotoPath);
+                    Bitmap bitmap = BitmapUtil.getThumbBitmap(new File(originPath));
+                    //根据sticker可见判断状态,FIT_CENTER/fitCenter这里要对bitmap获取width and height
+                    Bitmap favouriteBitmap = creatFavouriteFixWithPhoto(bitmap);
+                    savePath = savePhoto(favouriteBitmap, originPath);
+                    PhotoUtils.fileScan(StickApp.ins(), savePath);
+                    if (favouriteBitmap != null && !favouriteBitmap.isRecycled()) {
+                        favouriteBitmap.recycle();
+                    }
+                    System.gc();
+                    listener.onSaveResult(savePath);
+                } catch (Exception e) {
+                    Log.w(Ln.LOG_TAG, e);
+                    listener.onSaveResult("");
+                }
+            }
+        });
+
+    }
+
+    private String savePhoto(Bitmap bitmap, String originPath) {
+        File file = new File(originPath);
+        File saveDir = new File(FileUtil.STORE_PATH + "merge");
+        if (!saveDir.exists()) {
+            saveDir.mkdirs();
+        } else {
+            if (!saveDir.isDirectory()) {
+                FileUtil.deleteDirectory(saveDir.getAbsolutePath());
+                saveDir.mkdirs();
+            }
+        }
+        String name = file.getName().substring(0, file.getName().lastIndexOf('.')) + "_";
+        int count = 0;
+        String format = String.format("%%0%dd", 3);
+        File saveFile;
+        do {
+            count++;
+            String filename = name + String.format(format, count) + ".jpg";
+            saveFile = new File(saveDir, filename);
+        } while (saveFile.exists());
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(saveFile);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            return saveFile.getAbsolutePath();
+        } catch (FileNotFoundException e) {
+            Log.w(Ln.LOG_TAG, e);
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.flush();
+                    fos.close();
+                } catch (IOException e) {
+                    // Do nothing
+                }
+            }
+        }
+        return "";
+    }
+
+    public interface OnSaveResultListener {
+         void onSaveResult(String saveFile);
+    }
+
 
 }

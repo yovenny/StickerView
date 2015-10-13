@@ -26,6 +26,10 @@
             android:name=".ui.WaterActivity"
             android:theme="@style/WaterTitleTheme"
             android:label="@string/app_name" />
+
+        <activity
+            android:name=".ui.ResultActivity"
+            android:label="@string/app_name" />
     </application>
 
 </manifest>

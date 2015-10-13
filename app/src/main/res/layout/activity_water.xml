@@ -107,15 +107,18 @@
             android:layout_height="match_parent">
 
             <EditText
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:gravity="center"
                 android:id="@+id/gather_edit"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_centerInParent="true"
                 android:layout_marginLeft="@dimen/common_btn_margin"
                 android:layout_marginRight="@dimen/common_btn_margin"
-                android:background="@null"
+                android:background="@drawable/process_bottom_color"
                 android:textColor="@color/white"
-                android:textSize="25sp" />
+                android:textSize="20sp" />
 
             <ImageView
                 android:id="@+id/cancel_image"
