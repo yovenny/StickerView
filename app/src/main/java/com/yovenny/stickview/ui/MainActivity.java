@@ -6,6 +6,7 @@ import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.agsw.FabricView.FabricView;
 import com.yovenny.stickview.R;
 import com.yovenny.stickview.base.BaseActivity;
 import com.yovenny.stickview.util.FileUtil;
@@ -13,9 +14,13 @@ import com.yovenny.stickview.util.Ln;
 import com.yovenny.stickview.util.MediaUtils;
 import com.yovenny.stickview.util.UIHelper;
 
+import butterknife.InjectView;
 import butterknife.OnClick;
 
 public class MainActivity extends BaseActivity {
+
+    @InjectView(R.id.fabric)
+    FabricView mFabric;
 
     @Override
     protected int getLayoutId() {
@@ -41,7 +46,9 @@ public class MainActivity extends BaseActivity {
         if (id == R.id.action_settings) {
             return true;
         }
-
+        if(id==R.id.action_clear){
+            mFabric.cleanPage();
+        }
         return super.onOptionsItemSelected(item);
     }
 
