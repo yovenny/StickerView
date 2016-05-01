@@ -30,16 +30,16 @@ import android.provider.MediaStore;
 import java.io.IOException;
 
 /**
- * MediaUtils
+ * MediaUtil
  *
  * @author Nilesh Patel
  */
-public class MediaUtils {
+public class MediaUtil {
     /**
      * Used to tag logs
      */
     @SuppressWarnings("unused")
-    private static final String TAG = "MediaUtils";
+    private static final String TAG = "MediaUtil";
 
     public static String getPath(Activity activity, Uri uri) {
         String[] projection = {MediaStore.Images.Media.DATA};

@@ -11,11 +11,10 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.yovenny.stickview.Constant;
 import com.yovenny.stickview.R;
 import com.yovenny.stickview.model.WaterMarkItem;
 import com.yovenny.stickview.util.BitmapUtil;
-import com.yovenny.stickview.util.Convert;
+import com.yovenny.stickview.util.DensityUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,7 +78,7 @@ public class WaterAdapter extends RecyclerView.Adapter<WaterAdapter.ViewHolder> 
 //            holder.filterImage.setBackgroundResource(R.color.process_item_bg_color);
         }
         holder.filterText.setText(item.getName() + "");
-        Bitmap tempBitamp = BitmapUtil.getSampledBitmap(item.getSavePath(), Convert.dip2px(mContext, Constant.STICK_WIDTH), Convert.dip2px(mContext, Constant.STICK_WIDTH));
+        Bitmap tempBitamp = BitmapUtil.getSampledBitmap(item.getSavePath(), DensityUtil.dip2px(mContext, 150), DensityUtil.dip2px(mContext, 150));
         if (holder.filterRelative.getVisibility() != View.VISIBLE) {
             holder.filterRelative.setVisibility(View.VISIBLE);
         }

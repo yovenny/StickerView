@@ -5,9 +5,7 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.yovenny.stickview.Constant;
 import com.yovenny.stickview.util.AssetsUtil;
-import com.yovenny.stickview.util.Ln;
 
 import java.io.File;
 
@@ -21,7 +19,7 @@ public class WaterBaseDAO {
     }
 
     protected synchronized SQLiteDatabase getWaterMarkDb() {
-        String dbPath = getDatabasePath(Constant.WATER_SAVE_DB).getAbsolutePath();
+        String dbPath = getDatabasePath("waterMark.db").getAbsolutePath();
         if (!copyDBIfNecessary(dbPath)) {
             return null;
         }
@@ -57,14 +55,8 @@ public class WaterBaseDAO {
                     dbName = currName;
                 }
             }
-//            if (dbName == null || (underIdx = dbName.lastIndexOf(95)) < 0) {  // 名称不符合gwiki_1324242424411.db类似规范
-//                Ln.e("assets database(" + dbName + ") format error");
-//                return false;
-//            }
-            AssetsUtil.copyAssetFile(am, dbName, newPath);
-            Ln.d("copy database[" + dbName + "] from assets");
+            AssetsUtil.copyAssetFile(dbName, newPath,mContext);
         } catch (Exception ie) {
-            Ln.e("copy wiki database error:" + ie.getMessage());
             return false;
         }
         return true;

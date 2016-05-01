@@ -1,4 +1,4 @@
-package com.yovenny.stickview.wedget.sticker;
+package com.yovenny.sticklib;
 
 import android.graphics.Bitmap;
 

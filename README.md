@@ -1,8 +1,40 @@
-图片标签处理
-
-#Bug（需要解决的问题列表）
-  1.tab切换不能恢复上一次的选择  LinearLayoutManager.scrollToPositionWithOffset
-  2.将StickerSeriesView与业务数据独立，作为lib使用,封装开源并优化其(代码)。
-  3.优化、精简、部分工具类代码，删除多余的资源
+# StickView
+  图片标签处理
   
-  ![录制](https://dn-coding-net-production-file.qbox.me/8ffda737-277f-43b0-8ad1-0485a15ae37a.gif?download/GIF.gif&e=1444722597&token=goE9CtaiT5YaIP6ZQ1nAafd_C1Z_H2gVP8AwuC-5:zxIfXN0werh7uqbXk2V26lBSpAc=)
+## Screenshots
+  ![](screenshots/S60425-161409.png) ![](screenshots/S60425-161422.png)
+
+##Feature
+
+- 支持缩放(最小缩放),平移,并生成处理后的图片.
+- 支持便签数量无限制(较多可能存在性能问题)
+- 支持文字标签(实质文字转换成图片)
+
+##Issue
+- 图片生成会出现锯齿(后面会更正)
+- StickView scaleType must be fitCenter,cause compose bitmap base only fitCenter scaleType.
+- 需进一步优化代码
+
+## Gradle
+
+```groovy
+compile 'com.yovenny.StickView:sticklib:1.0.0'
+```
+
+##Usage
+    
+###＊incode＊
+```java  
+   mSticker.outsideRadium(14).insideRadium(9).stickWidth(150).strokeWidth(2).locationPadding(15);
+                      
+```
+                      
+###  ＊in xml＊
+```xml
+       <com.yovenny.sticklib.StickerSeriesView
+                  android:background="#131413"
+                  android:scaleType="fitCenter"
+                  android:id="@+id/process_sticker"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent" />
+```

@@ -6,7 +6,6 @@ package com.yovenny.stickview.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.yovenny.stickview.Constant;
 import com.yovenny.stickview.util.FileUtil;
 
 import java.io.File;
@@ -106,11 +105,11 @@ public class WaterMarkItem  implements Parcelable {
     }
 
     public String getSavePath() {
-        return FileUtil.STORE_PATH + Constant.WATER_SAVE_FILE+ File.separator + categoryId +  File.separator+ imageId;
+        return FileUtil.STORE_PATH + "water/"+ File.separator + categoryId +  File.separator+ imageId;
     }
 
     public String getCategoryPath() {
-        return FileUtil.STORE_PATH + Constant.WATER_SAVE_FILE + categoryId + File.separator;
+        return FileUtil.STORE_PATH +"water/"  + categoryId + File.separator;
     }
 
     public String getName() {

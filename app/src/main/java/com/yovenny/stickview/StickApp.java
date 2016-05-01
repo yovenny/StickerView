@@ -2,12 +2,10 @@ package com.yovenny.stickview;
 
 import android.app.Application;
 import android.content.Context;
+import android.os.Environment;
 
 import com.yovenny.stickview.util.AssetsUtil;
-import com.yovenny.stickview.util.FileUtil;
-import com.yovenny.stickview.util.Ln;
 import com.yovenny.stickview.util.PreferenceHelper;
-import com.yovenny.stickview.util.TaskExecutor;
 
 /**
  * Desc：
@@ -50,27 +48,21 @@ public class StickApp extends Application{
 
     //初始化水印
     private void initCopyWaterToSD(final Context context) {
-        boolean isRequestEver = PreferenceHelper.readBoolean(context, STICK_PREF, "isEverinitWater", false);
+        boolean isRequestEver = PreferenceHelper.readBoolean(context, STICK_PREF, "isEverInitWater", false);
         if (!isRequestEver) {
-            PreferenceHelper.writeBoolean(context, STICK_PREF, "isEverinitWater", true);
-            TaskExecutor.executeTask(new Runnable() {
+            PreferenceHelper.writeBoolean(context, STICK_PREF, "isEverInitWater", true);
+            new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    String arg_assetDir = Constant.WATER_SAVE_FILE;
-                    String arg_destinationDir = FileUtil.STORE_PATH + Constant.WATER_SAVE_FILE;
+                    String arg_assetDir = "water";
+                    String arg_destinationDir = Environment.getExternalStorageDirectory()+"/StickView/water";
                     try {
-                        //不删除水印文件夹，避免用户再次下载
-//                        File waterFile=new File(arg_destinationDir);
-//                        if(waterFile.exists()){
-//                            FileUtil.deleteDirectory(waterFile.getAbsolutePath());
-//                        }
-                        AssetsUtil.copyDirorfileFromAssetManager(arg_assetDir, arg_destinationDir, context);
+                        AssetsUtil.copyDirectoryFromAsset(arg_assetDir, arg_destinationDir, context);
                     } catch (Exception e) {
-                        Ln.e("copy file fail !!!");
                         e.printStackTrace();
                     }
                 }
-            });
+            }).start();
         }
     }
 }

@@ -6,21 +6,16 @@ import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.agsw.FabricView.FabricView;
 import com.yovenny.stickview.R;
 import com.yovenny.stickview.base.BaseActivity;
 import com.yovenny.stickview.util.FileUtil;
-import com.yovenny.stickview.util.Ln;
-import com.yovenny.stickview.util.MediaUtils;
+import com.yovenny.stickview.util.MediaUtil;
 import com.yovenny.stickview.util.UIHelper;
 
-import butterknife.InjectView;
 import butterknife.OnClick;
 
 public class MainActivity extends BaseActivity {
 
-    @InjectView(R.id.fabric)
-    FabricView mFabric;
 
     @Override
     protected int getLayoutId() {
@@ -47,7 +42,6 @@ public class MainActivity extends BaseActivity {
             return true;
         }
         if(id==R.id.action_clear){
-            mFabric.cleanPage();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -88,7 +82,6 @@ public class MainActivity extends BaseActivity {
         try {
             mFullCameraUri = Uri.fromFile(FileUtil.createTempFile("camtmp", ".jpg"));
         } catch (Exception e) {
-            Ln.e("Can't create file to take picture!");
             po("Please check SD card! Image shot is impossible!");
         }
     }
@@ -103,7 +96,7 @@ public class MainActivity extends BaseActivity {
                     break;
                 case ALBUM_REQUEST_CODE:
                     processImgUri = data.getData();
-                    final String photoPath = MediaUtils.getKitkatPath(this, processImgUri);
+                    final String photoPath = MediaUtil.getKitkatPath(this, processImgUri);
                     if (processImgUri != null) {
                         UIHelper.showWaterActivity(this, photoPath);
                     } else {

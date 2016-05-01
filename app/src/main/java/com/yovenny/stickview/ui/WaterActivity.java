@@ -23,30 +23,24 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.yovenny.stickview.Constant;
+import com.yovenny.sticklib.ImgStick;
+import com.yovenny.sticklib.Stick;
+import com.yovenny.sticklib.StickerSeriesView;
+import com.yovenny.sticklib.TextStick;
 import com.yovenny.stickview.R;
-import com.yovenny.stickview.StickApp;
 import com.yovenny.stickview.adapter.WaterAdapter;
 import com.yovenny.stickview.base.BaseActivity;
 import com.yovenny.stickview.db.DBManager;
 import com.yovenny.stickview.model.WaterMarkCategory;
 import com.yovenny.stickview.model.WaterMarkItem;
 import com.yovenny.stickview.util.BitmapUtil;
-import com.yovenny.stickview.util.Convert;
+import com.yovenny.stickview.util.DensityUtil;
 import com.yovenny.stickview.util.Global;
-import com.yovenny.stickview.util.MediaUtils;
+import com.yovenny.stickview.util.MediaUtil;
 import com.yovenny.stickview.util.UIHelper;
-import com.yovenny.stickview.wedget.ScaleRadioButton;
-import com.yovenny.stickview.wedget.TabBarView;
-import com.yovenny.stickview.wedget.sticker.ImgStick;
-import com.yovenny.stickview.wedget.sticker.Stick;
-import com.yovenny.stickview.wedget.sticker.StickerSeriesView;
-import com.yovenny.stickview.wedget.sticker.TextStick;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -61,17 +55,15 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
 
     private String mOriginalPhotoPath = null;
     private Bitmap mBitmap = null;
-    private ImageView mImageView = null;
     private static Handler mHandle = new Handler();
 
-    private TabBarView mTab;
+    private PagerSlidingTabStrip mTab;
     private WaterAdapter mWaterAdapter;
     private StickerSeriesView mSticker;
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
 
     private ImageView mTextImage;
-    private ImageView mWaterTipImage;
     private TextView mWaterMarkRadio;
     private RelativeLayout mTextRelative;
 
@@ -82,6 +74,7 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
     private ImageView mInputCancelImage;
     private ImageView mInputConfirmImage;
     private EditText mInputEdit;
+
 
     @Override
     public void initView() {
@@ -118,12 +111,11 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
 
 
     public void initUI() {
-        mImageView = (ImageView) findViewById(R.id.imageViewPhoto);
         mSticker = (StickerSeriesView) findViewById(R.id.process_sticker);
-        mWaterTipImage = (ImageView) findViewById(R.id.process_water_tip_up);
+        mSticker.outsideRadium(14).insideRadium(9).stickWidth(150).strokeWidth(2).locationPadding(15);
         mWaterMarkRadio = (TextView) findViewById(R.id.watermark_radio);
         mTextImage = (ImageView) findViewById(R.id.text_image);
-        mTab = (TabBarView) findViewById(R.id.tabs);
+        mTab = (PagerSlidingTabStrip) findViewById(R.id.tabs);
         mWaterMarkRadio.setOnClickListener(this);
         mTextRelative = (RelativeLayout) findViewById(R.id.text_relative);
 
@@ -167,36 +159,33 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
 
     private void initWaterMarkUI() {
         //获取水印的分类
-        mTab.setRadioGroupPadding(0, 0, 0, 0);
-        mTab.setScreenWidth(StickApp.sWidthPix);
-        mTab.setTabHeight(R.dimen.process_bottom_height);
-        mTab.hideTabIndicator();
+
         DBManager dbManager = new DBManager(this);
         final List<WaterMarkCategory> categoryList = dbManager.getWaterCategoryDAO().findValid();
-
         if (categoryList.size() > 0) {
             final List<Integer> nextXs = new ArrayList<>();
-            for (WaterMarkCategory waterMarkCategory : categoryList) {
+           String[] titles=new String[categoryList.size()];
+
+            for (int i=0;i<categoryList.size();i++) {
+                WaterMarkCategory waterMarkCategory=categoryList.get(i);
                 waterMarkCategory.setWaterMarkItems(dbManager.getWaterItemDAO().findValid(waterMarkCategory.getCid()));
-                mTab.addOrigin(createRadioButton(waterMarkCategory.getName()));
+                titles[i]=waterMarkCategory.getName();
                 nextXs.add(0);
             }
-            if (categoryList.size() <= 6) {
-                mTab.limitInScreen(true);
-            }
-            mTab.setCheckAt(0);
             mWaterAdapter = new WaterAdapter(this, categoryList.get(0).waterMarkItems);
             mRecyclerView.setAdapter(mWaterAdapter);
-            mTab.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            mTab.setShouldExpand(true);
+            mTab.setIndicatorColor(R.color.common_front_color);
+            mTab.setIndicatorHeight((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()));
+            mTab.setTitles(titles,new PagerSlidingTabStrip.OnTabChangeListener() {
                 @Override
-                public void onCheckedChanged(RadioGroup group, int checkedId) {
+                public void onTabChange(int position) {
                     //更改水印的适配器
                     nextXs.set(mLastCheck, mLinearLayoutManager.findFirstVisibleItemPosition());
-                    final int index = group.indexOfChild(group.findViewById(checkedId));
-                    mLastCheck = index;
-                    final WaterMarkCategory tempCategory = categoryList.get(index);
+                    mLastCheck = position;
+                    final WaterMarkCategory tempCategory = categoryList.get(position);
                     mWaterAdapter.notifyDataSetChange(tempCategory.waterMarkItems);
-                    mLinearLayoutManager.scrollToPositionWithOffset(nextXs.get(index),0);//并不能准确选中上一次的选择
+                    mLinearLayoutManager.scrollToPositionWithOffset(nextXs.get(position), 0);
                 }
             });
 
@@ -213,30 +202,19 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
                     }
                 }
             });
-        } else {
-            mTab.addOrigin(createRadioButton(getString(R.string.app_name)));
         }
     }
 
-    private RadioButton createRadioButton(String text) {
-        ScaleRadioButton newRadioBtn = new ScaleRadioButton(this);
-        newRadioBtn.setTextColor(getResources().getColorStateList(R.color.process_bottom_tab_text_colors));
-        newRadioBtn.setBackgroundResource(R.drawable.process_bottom_selector);
-        newRadioBtn.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.process_title_text_size));
-        newRadioBtn.setSingleLine();
-        newRadioBtn.setMaxEms(8);
-        newRadioBtn.setText(text);
-        return newRadioBtn;
-    }
+
 
     private void onStickSelect(int position, WaterMarkItem item) {
-        if (mSticker.getStickCount() >= StickerSeriesView.STICK_IMG_MAX_COUNT) {
+        if (mSticker.getStickCount() >= StickerSeriesView.mImgMaxCount) {
             po(getString(R.string.process_stick_max));
             return;
         }
         mWaterAdapter.addItemCheck(item.getCategoryId(), position);
-        int widthPx = Convert.dip2px(this, Constant.UPLOAD_IMAGE_MAX_WIDTH);
-        Bitmap sampleBitamp = BitmapUtil.decodeBmpFromFile(new File(item.getSavePath()), widthPx, widthPx, false);
+        int widthPx = DensityUtil.dip2px(this, 200);
+        Bitmap sampleBitamp = BitmapUtil.getSampledBitmap(item.getSavePath(), widthPx, widthPx);
         if (sampleBitamp == null) {
             po("加载水印失败");
         } else {
@@ -255,10 +233,12 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
 
 
     private void onImgUri(String processPath) {
-        mImageView.setImageBitmap(null);
+//        mImageView.setImageBitmap(null);
+        mSticker.setImageBitmap(null);
         mOriginalPhotoPath = processPath;
         loadPhoto(mOriginalPhotoPath);
-        mImageView.setImageBitmap(mBitmap);
+//        mImageView.setImageBitmap(mBitmap);
+        mSticker.setImageBitmap(mBitmap);
     }
 
 
@@ -304,17 +284,9 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
         if (mBitmap != null) {
             mBitmap.recycle();
         }
-
-//TODO 图片压缩方式一
-//        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-//        mBitmap = BitmapUtil.getSampledBitmap(path, displayMetrics.widthPixels, displayMetrics.heightPixels);
-
-//TODO 图片压缩方式二
-        mBitmap = BitmapUtil.getThumbBitmap(new File(path));
-
-//TODO 图片压缩方式三
-//        mBitmap = BitmapUtil.getBitmap(path);
-        int angle = MediaUtils.getExifOrientation(path);
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+        mBitmap = BitmapUtil.getSampledBitmap(path, displayMetrics.widthPixels, displayMetrics.heightPixels);
+        int angle = MediaUtil.getExifOrientation(path);
         if (mBitmap == null) {
             mHandle.post(new Runnable() {
                 @Override
@@ -330,7 +302,7 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
     private void showTempPhotoInImageView() {
         if (mBitmap != null) {
             Bitmap bitmap = Bitmap.createScaledBitmap(mBitmap, mBitmap.getWidth() / 4, mBitmap.getHeight() / 4, true);
-            mImageView.setImageBitmap(bitmap);
+            mSticker.setImageBitmap(bitmap);
         }
     }
 
@@ -357,7 +329,7 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
             case R.id.watermark_radio:
                 break;
             case R.id.text_image:
-                if (mSticker.getTextCount() >= StickerSeriesView.STICK_TEXT_MAX_COUNT) {
+                if (mSticker.getTextCount() >= StickerSeriesView.mTextMaxCount) {
                     po(getString(R.string.process_text_max));
                     return;
                 }
@@ -416,7 +388,7 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
         }
         if (mOriginalPhotoPath != null) {
             loadFromCache();
-            mImageView.setImageBitmap(mBitmap);
+            mSticker.setImageBitmap(mBitmap);
         }
     }
 
@@ -428,5 +400,6 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
         File cacheFile = new File(getCacheDir(), "cached.jpg");
         mBitmap = BitmapUtil.getSampledBitmap(cacheFile.getAbsolutePath(), displayMetrics.widthPixels, displayMetrics.heightPixels);
     }
+
 
 }

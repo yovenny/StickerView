@@ -7,7 +7,7 @@ import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.text.TextUtils;
 
-public class DialogHelp {
+public class DialogHelper {
 
     /***
      * 获取一个dialog

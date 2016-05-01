@@ -9,7 +9,7 @@ import android.widget.Toast;
 
 import com.yovenny.stickview.interf.BaseView;
 import com.yovenny.stickview.interf.DialogControl;
-import com.yovenny.stickview.util.DialogHelp;
+import com.yovenny.stickview.util.DialogHelper;
 
 import butterknife.ButterKnife;
 
@@ -106,7 +106,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseView
     public ProgressDialog showWaitDialog(String message) {
         if (_isVisible) {
             if (_waitDialog == null) {
-                _waitDialog = DialogHelp.getWaitDialog(this, message);
+                _waitDialog = DialogHelper.getWaitDialog(this, message);
             }
             if (_waitDialog != null) {
                 _waitDialog.setMessage(message);

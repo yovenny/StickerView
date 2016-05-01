@@ -9,5 +9,6 @@
     <color name="common_item_bg_color">#ffffffff</color>
     <color name="process_text_check_text_color">#5b5b5b</color>
     <drawable name="process_bottom_color">#292E29</drawable>
+    <color name="background_tab_pressed">#6633B5E5</color>
 
 </resources>

@@ -5,7 +5,7 @@ import android.content.Context;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class Convert {
+public class DensityUtil {
     private static float mDensity = -1;
 
     /**

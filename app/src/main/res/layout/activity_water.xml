@@ -13,17 +13,19 @@
         android:layout_alignParentBottom="true"
         android:background="@drawable/process_comment_bg_color">
 
-        <com.yovenny.stickview.wedget.TabBarView
+
+        <com.yovenny.stickview.ui.PagerSlidingTabStrip
             android:id="@+id/tabs"
+            android:layout_alignParentBottom="true"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true" />
+            android:layout_height="48dip" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/watermark_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@id/tabs" />
+
     </RelativeLayout>
 
     <RelativeLayout
@@ -81,21 +83,10 @@
             android:layout_toLeftOf="@id/text_image"
             android:background="#312f2f" />
     </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/photo_show"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/choose_menu">
-
-        <ImageView
-            android:id="@+id/imageViewPhoto"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+        <com.yovenny.sticklib.StickerSeriesView
+            android:layout_above="@id/choose_menu"
             android:background="#131413"
-            android:scaleType="fitCenter" />
-
-        <com.yovenny.stickview.wedget.sticker.StickerSeriesView
+            android:scaleType="fitCenter"
             android:id="@+id/process_sticker"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
@@ -144,4 +135,3 @@
                 android:src="@drawable/common_dialog_confirm_bg_selector" />
         </RelativeLayout>
     </RelativeLayout>
-</RelativeLayout>

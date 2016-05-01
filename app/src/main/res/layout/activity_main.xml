@@ -26,10 +26,6 @@
         android:layout_below="@id/camera"
         android:text="相册" />
 
-    <com.agsw.FabricView.FabricView
-        android:layout_below="@id/album"
-        android:id="@+id/fabric"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+
 
 </RelativeLayout>

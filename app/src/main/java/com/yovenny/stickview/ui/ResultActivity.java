@@ -11,8 +11,7 @@ import android.widget.LinearLayout;
 import com.yovenny.stickview.R;
 import com.yovenny.stickview.StickApp;
 import com.yovenny.stickview.base.BaseActivity;
-import com.yovenny.stickview.util.Convert;
-import com.yovenny.stickview.util.Ln;
+import com.yovenny.stickview.util.DensityUtil;
 
 import java.util.List;
 
@@ -59,7 +58,6 @@ public class ResultActivity extends BaseActivity {
 
     private void updateHeadBmp(Bitmap newBmp) {
         if (newBmp == null) {
-            Ln.w("set new head bmp is null");
             return;
         }
         if (mUploadBmp != null && !mUploadBmp.isRecycled()) {
@@ -69,7 +67,7 @@ public class ResultActivity extends BaseActivity {
         }
         mUploadBmp = newBmp;
         //按比例展示图片
-        int photoFixWidth = StickApp.sWidthPix - Convert.dip2px(this, 18 * 2);
+        int photoFixWidth = StickApp.sWidthPix - DensityUtil.dip2px(this, 18 * 2);
         float height = mUploadBmp.getHeight();
         float width = mUploadBmp.getWidth();
         float scale = height / width;

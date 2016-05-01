@@ -1,9 +1,8 @@
-package com.yovenny.stickview.wedget.sticker;
+package com.yovenny.sticklib;
 /**
  * Summary: 水印标签自定义操作
  */
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -18,22 +17,10 @@ import android.graphics.Typeface;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.util.FloatMath;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
-
-import com.yovenny.stickview.Constant;
-import com.yovenny.stickview.R;
-import com.yovenny.stickview.StickApp;
-import com.yovenny.stickview.util.BitmapUtil;
-import com.yovenny.stickview.util.Convert;
-import com.yovenny.stickview.util.FileUtil;
-import com.yovenny.stickview.util.Ln;
-import com.yovenny.stickview.util.PhotoUtils;
-import com.yovenny.stickview.util.TaskExecutor;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -46,34 +33,70 @@ import java.util.List;
 //bitmap recycle 设置新的sticker text 将bitmap cycle
 public class StickerSeriesView extends ImageView {
 
-    float x_down = 0;
-    float y_down = 0;
-
+    //模式
     private static final int NONE = 0;
     private static final int DRAG = 1;
     private static final int ZOOM = 2;
     private static final int DELETE = 3;
-
-    //绘制的固定参数
-    public float OUTSIDE_RADIOU = Convert.dip2px(getContext(), 14);
-    private float INSIDE_RADIOU = Convert.dip2px(getContext(), 9);
-    private float STROKE_WIDTH = Convert.dip2px(getContext(), 2);
-    private float LOCATION_PADDING = Convert.dip2px(getContext(), 15);
-
-    private float MIN_STICK_SCALE_HEIGHT = OUTSIDE_RADIOU * 4;
-    private float MIN_TEXT_SCALE_HEIGHT = OUTSIDE_RADIOU * 2;//3
-
-    private float range = OUTSIDE_RADIOU;
     private int mode = NONE;
-    private int mBgWidth;
-    private int mBgHeight;
+
+    //stick的参数
+    public  float mStickWidth = dip2px(getContext(), 150);
+    public  float mOutsideRadium = dip2px(getContext(), 14);
+    private float mInsideRadium = dip2px(getContext(), 9);
+    private float mStrokeWidth = dip2px(getContext(), 2);
+    private float mLocationPadding =dip2px(getContext(), 15);
+    private float mMinScaleHeight = mOutsideRadium * 4;
+    private float mMinTextScaleHeight = mOutsideRadium * 2;//3
+    private float mRange = mOutsideRadium;
+    private float mLocTextSize = 12,mLocTextMargin = 8,mLocBitmapWidth = 9;
+    //touch事件的位置记录
+    private float x_down,y_down,savex, savey, curx, cury;
+
+    //位置图标
+    private Bitmap mLocBitmap;
+
+    // 生成图片leftTopMargin
+    private float topMargin,leftMargin;
+    private float scaleWidth,scaleHeight;
+    private int mBgWidth,mBgHeight;
+
     //显示文字水印和图片水印的总开关
     private boolean isShowStick = true;
     private boolean isShowText = true;
     private boolean isShowAddress;
 
-    public static final int STICK_TEXT_MAX_COUNT = 15;
-    public static final int STICK_IMG_MAX_COUNT = 15;
+    public static final int mTextMaxCount = 15;
+    public static final int mImgMaxCount = 15;
+
+    //params setting =================================================================================================
+
+    public StickerSeriesView stickWidth(float stickWidth){
+        mStickWidth=dip2px(getContext(),stickWidth);
+        return this;
+    }
+
+    public StickerSeriesView outsideRadium(float outsideRadium){
+        mOutsideRadium=dip2px(getContext(),outsideRadium);
+        return this;
+    }
+
+    public StickerSeriesView insideRadium(float insideRadium){
+        mInsideRadium=dip2px(getContext(),insideRadium);
+        return this;
+    }
+
+    public StickerSeriesView strokeWidth(float strokeWidth){
+        mStrokeWidth=dip2px(getContext(),strokeWidth);
+        return this;
+    }
+
+    public StickerSeriesView locationPadding(float locationPadding){
+        mLocationPadding=dip2px(getContext(),locationPadding);
+        return this;
+    }
+
+    //params setting =================================================================================================
 
 
     //联系添加水印的思路如下：调用方面将会有
@@ -82,32 +105,23 @@ public class StickerSeriesView extends ImageView {
     //3.按照list的顺序进行排序。
     private List<Stick> mStickList = new ArrayList<>();
 
+    // 距离差
+    private float _scaleDelta;//Sticker 和text 的按下偏移
+    private String mLocationStr = "";
+    float mDensity =getDensity(getContext());
+    //实时的背景，用户旋转操作时需将其设进来
+    private Bitmap mBgBitmap;
 
     //删除的listener
     private OnStickDelListener mOnStickDelListener;
     private OnStickTextDelListener mOnStickTextDelListener;
 
-    public void delStick(int categoryId, int position) {
-        for (int i = 0; i < mStickList.size(); i++) {
-            Stick stick = mStickList.get(i);
-            if (stick instanceof ImgStick) {
-                if (((ImgStick) stick).categoryId == categoryId && ((ImgStick) stick).position == position) {
-                    mStickList.remove(i);
-                    i--;
-                    break;
-                }
-            }
-
-        }
-        invalidate();
-    }
-
     public interface OnStickDelListener {
-        public void onStickDel(int categoryId, int postion);
+         void onStickDel(int categoryId, int postion);
     }
 
     public interface OnStickTextDelListener {
-        public void onStickTextDel();
+         void onStickTextDel();
     }
 
     public void setOnStickDelListener(OnStickDelListener onStickDelListener) {
@@ -119,50 +133,11 @@ public class StickerSeriesView extends ImageView {
     }
 
 
-    int widthScreen;
-    int heightScreen;
-    private float savex, savey, curx, cury;
-    private Bitmap mLocBitmap;
-    private float mLocTextSize = 12;
-    private float mLocTextMargin = 8;
-    private float mLocBitmapWidth = 9;
-
-    // 距离差
-    private float _scaleDelta;//Sticker 和text 的按下偏移
-
-    //拉伸和放大的图标
-//    private Bitmap mScaleBitmap;
-//    private Bitmap mDelBitmap;
-    private String mLocationStr = "";
-    float mDensity = Convert.getScreenDensity(getContext());
-
-    //实时的背景，用户旋转操作时需将其设进来
-    private Bitmap mBgBitmap;
-
-    // 生成图片leftTopMargin
-    private float topMargin;
-    private float leftMargin;
-    private float scaleHeight;
-    private float scaleWidth;
-
-    private boolean isEverShowText;
-
-    public boolean isEverShowText() {
-        return isEverShowText;
-    }
 
     public StickerSeriesView(Context context) {
         super(context);
-        DisplayMetrics dm = new DisplayMetrics();
-        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(dm);
-        widthScreen = dm.widthPixels;
-        heightScreen = dm.heightPixels;
         mLocBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_local_draw);
-//        mScaleBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_process_scale);
-//        mDelBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_process_del);
         zoomDisplayBitmap();
-        // Disable hardware acceleration to make sure bitmaps are drawn with anti-aliasing
-        // See http://stackoverflow.com/questions/14378573/bitmap-not-drawn-anti-aliased/14443954
         if (android.os.Build.VERSION.SDK_INT >= 11) {
             setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         }
@@ -170,13 +145,8 @@ public class StickerSeriesView extends ImageView {
 
     public StickerSeriesView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        DisplayMetrics dm = new DisplayMetrics();
-        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(dm);
-        widthScreen = dm.widthPixels;
-        heightScreen = dm.heightPixels;
+
         mLocBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_local_draw);
-//        mScaleBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_process_scale);
-//        mDelBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_process_del);
         zoomDisplayBitmap();
         if (android.os.Build.VERSION.SDK_INT >= 11) {
             setLayerType(View.LAYER_TYPE_SOFTWARE, null);
@@ -184,11 +154,9 @@ public class StickerSeriesView extends ImageView {
     }
 
     private void zoomDisplayBitmap() {
-//        mDelBitmap = BitmapUtil.zoomBitmap(mDelBitmap, (int) range * 2, (int) range * 2);
-//        mScaleBitmap = BitmapUtil.zoomBitmap(mScaleBitmap, (int) range * 2, (int) range * 2);
         float tempScale = (float) mLocBitmap.getWidth() / (mLocBitmapWidth * mDensity);
         float locScaleHeight = (float) mLocBitmap.getHeight() / tempScale;
-        mLocBitmap = BitmapUtil.zoomBitmap(mLocBitmap, (int) (mLocBitmapWidth * mDensity), (int) locScaleHeight);
+        mLocBitmap = StickUtil.zoomBitmap(mLocBitmap, (int) (mLocBitmapWidth * mDensity), (int) locScaleHeight,false);
     }
 
 
@@ -199,25 +167,21 @@ public class StickerSeriesView extends ImageView {
 
         paint.setColor(Color.WHITE);
         paint.setStyle(Paint.Style.STROKE);
-//      paint.setPathEffect(new DashPathEffect(new float[]{4, 2, 4, 2}, 0));
-        canvas.drawLine(fp[0], fp[1], fp[2] + STROKE_WIDTH / 2, fp[3], paint);
+        canvas.drawLine(fp[0], fp[1], fp[2] + mStrokeWidth / 2, fp[3], paint);
         canvas.drawLine(fp[0], fp[1], fp[4], fp[5], paint);
         canvas.drawLine(fp[2], fp[3], fp[6], fp[7], paint);
-        canvas.drawLine(fp[4] - STROKE_WIDTH / 2, fp[5], fp[6], fp[7], paint);
+        canvas.drawLine(fp[4] - mStrokeWidth / 2, fp[5], fp[6], fp[7], paint);
         paint.setStyle(Paint.Style.FILL);
 
-        //绘制UI提供的操作图
-//        canvas.drawBitmap(mDelBitmap, fp[0] - mDelBitmap.getWidth() / 2, fp[1] - mDelBitmap.getHeight() / 2, paint);
-//        canvas.drawBitmap(mScaleBitmap, fp[6] - mScaleBitmap.getWidth() / 2, fp[7] - mScaleBitmap.getHeight() / 2, paint);
 
         // 创建绘制边框的边界值
-        canvas.drawCircle(fp[2], fp[3], INSIDE_RADIOU, paint);
-        canvas.drawCircle(fp[4], fp[5], INSIDE_RADIOU, paint);
-        canvas.drawCircle(fp[0], fp[1], OUTSIDE_RADIOU, paint);
-        canvas.drawCircle(fp[6], fp[7], INSIDE_RADIOU, paint);
+        canvas.drawCircle(fp[2], fp[3], mInsideRadium, paint);
+        canvas.drawCircle(fp[4], fp[5], mInsideRadium, paint);
+        canvas.drawCircle(fp[0], fp[1], mOutsideRadium, paint);
+        canvas.drawCircle(fp[6], fp[7], mInsideRadium, paint);
         //绘制删除的黑线
         paint.setColor(Color.BLACK);
-        float len = (float) (Math.sqrt(INSIDE_RADIOU * INSIDE_RADIOU / 2));
+        float len = (float) (Math.sqrt(mInsideRadium * mInsideRadium / 2));
         canvas.drawLine(fp[0] - len, fp[1] - len, fp[0] + len, fp[1] + len, paint);
         canvas.drawLine(fp[0] + len, fp[1] - len, fp[0] - len, fp[1] + len, paint);
     }
@@ -241,13 +205,14 @@ public class StickerSeriesView extends ImageView {
 //            int w = (int) paint.measureText(mLocationStr);
             Paint.FontMetricsInt fontMetrics = paint.getFontMetricsInt();
             //根据实际显示的图片，绘制坐标文字
-            float baseline = mBgHeight - topMargin - fontMetrics.bottom - LOCATION_PADDING;
-            canvas.drawText(mLocationStr, mBgWidth - leftMargin - LOCATION_PADDING, baseline, paint);// 文字位置
-            canvas.drawBitmap(mLocBitmap, mBgWidth - leftMargin - LOCATION_PADDING - w - mLocBitmap.getWidth() - mLocTextMargin * mDensity, baseline - mLocBitmap.getHeight(), paint);
+            float baseline = mBgHeight - topMargin - fontMetrics.bottom - mLocationPadding;
+            canvas.drawText(mLocationStr, mBgWidth - leftMargin - mLocationPadding, baseline, paint);// 文字位置
+            canvas.drawBitmap(mLocBitmap, mBgWidth - leftMargin - mLocationPadding - w - mLocBitmap.getWidth() - mLocTextMargin * mDensity, baseline - mLocBitmap.getHeight(), paint);
         }
     }
 
     protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
         canvas.save();
         drawText(canvas);
         drawStickAndTexByHandle(canvas);
@@ -256,14 +221,14 @@ public class StickerSeriesView extends ImageView {
     }
 
     private void drawStickAndTexByHandle(Canvas canvas) {
-        Paint bitmapPaint = new Paint();//Paint.FILTER_BITMAP_FLAG//Paint.ANTI_ALIAS_FLAG
+        Paint bitmapPaint = new Paint();
         bitmapPaint.setAntiAlias(true);
         bitmapPaint.setFilterBitmap(true);
         Paint paint = new Paint();
         paint.setAntiAlias(true);
         paint.setColor(Color.WHITE);
         paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(STROKE_WIDTH);
+        paint.setStrokeWidth(mStrokeWidth);
 
         for (int i = mStickList.size() - 1; i >= 0; i--) {
             Stick stick = mStickList.get(i);
@@ -301,19 +266,19 @@ public class StickerSeriesView extends ImageView {
             }
         } else {
             midPoint(stick.mid, stick.sp[0], stick.sp[1], stick.sp[6], stick.sp[7]);
-            stick.oldRotation = (float) getRorateDegrees(stick.mid.x, stick.mid.y, savex, savey, curx, cury);
+            stick.oldRotation = (float) getRotateDegrees(stick.mid.x, stick.mid.y, savex, savey, curx, cury);
             stick.oldDist = spacing(stick.mid.x, stick.mid.y, stick.sp[6], stick.sp[7]);
             float frameOldStickDist = spacing(stick.mid.x, stick.mid.y, stick.fp[6], stick.fp[7]);
             //计算偏移的stickScale
             _scaleDelta = spacing(stick.mid.x, stick.mid.y, curx, cury) - frameOldStickDist;
             //计算边框的最小缩放值
             if (stick instanceof ImgStick) {
-                stick.minSacle = MIN_STICK_SCALE_HEIGHT / spacing(stick.fp[0], stick.fp[1], stick.fp[4], stick.fp[5]);
+                stick.minSacle = mMinScaleHeight / spacing(stick.fp[0], stick.fp[1], stick.fp[4], stick.fp[5]);
             } else {
-                stick.minSacle = MIN_TEXT_SCALE_HEIGHT / spacing(stick.fp[0], stick.fp[1], stick.fp[4], stick.fp[5]);
+                stick.minSacle = mMinTextScaleHeight / spacing(stick.fp[0], stick.fp[1], stick.fp[4], stick.fp[5]);
             }
             //恢复初始
-            if (spacing(stick.sp[0], stick.sp[1], stick.sp[4], stick.sp[5]) < (stick instanceof ImgStick ? MIN_STICK_SCALE_HEIGHT : MIN_TEXT_SCALE_HEIGHT)) {
+            if (spacing(stick.sp[0], stick.sp[1], stick.sp[4], stick.sp[5]) < (stick instanceof ImgStick ? mMinScaleHeight : mMinTextScaleHeight)) {
                 float frameDist = spacing(stick.mid.x, stick.mid.y, stick.fp[6], stick.fp[7]);
                 float scale = frameDist / stick.oldDist;
                 stick.matrix.postScale(scale, scale, stick.mid.x, stick.mid.y);// 縮放
@@ -386,7 +351,6 @@ public class StickerSeriesView extends ImageView {
                     for (int i = 0; i < mStickList.size(); i++) {
                         Stick stick = mStickList.get(i);
                         if (stick.isShowStick) {
-//                            if (isDragPoint(x_down, y_down, stick.fp)) {
                             if (isDragPoint(x_down, y_down, stick.frameMatrix, stick.stickBitmap)) {
                                 adjustStickList(stick);
                                 mode = DRAG;
@@ -428,7 +392,7 @@ public class StickerSeriesView extends ImageView {
                     }
                     Stick stick = mStickList.get(0);
                     stick.transMatrix1.set(stick.savedMatrix);
-                    float rotation = (float) (getRorateDegrees(stick.mid.x, stick.mid.y, savex, savey, curx, cury));
+                    float rotation = (float) (getRotateDegrees(stick.mid.x, stick.mid.y, savex, savey, curx, cury));
                     float displayRotation;
                     if (Float.compare(rotation, Float.NaN) == 0) {
                         displayRotation = stick.oldRotation;
@@ -447,38 +411,19 @@ public class StickerSeriesView extends ImageView {
 //                  displayRotation = displayRotation % 360;
                     float newDist = spacing(stick.mid.x, stick.mid.y, curx, cury) - _scaleDelta;
                     float scale = newDist / stick.oldDist;
-                    /**
-                     *  现需求不支持文字缩放，旋转,若支持，去掉此判断：代码冗余
-                     */
-//                    if (stick instanceof ImgStick) {
+
                     stick.transMatrix1.postRotate(displayRotation, stick.mid.x, stick.mid.y);
                     stick.transMatrix1.postScale(scale, scale, stick.mid.x, stick.mid.y);// 縮放
-//                    }
                     matrixCheck(stick.transMatrix1, stick.sp, stick.stickBitmap);
                     stick.matrix.set(stick.transMatrix1);
 
                     stick.frameTransMatrix1.set(stick.frameSavedMatrix);
-                    /**
-                     *  现需求不支持文字缩放，旋转,若支持，去掉此判断：代码冗余
-                     */
-//                    if (stick instanceof ImgStick) {
                     stick.frameTransMatrix1.postRotate(displayRotation, stick.mid.x, stick.mid.y);
-//                    }
-                    if (spacing(stick.sp[0], stick.sp[1], stick.sp[4], stick.sp[5]) < (stick instanceof ImgStick ? MIN_STICK_SCALE_HEIGHT : MIN_TEXT_SCALE_HEIGHT)) {
-                        /**
-                         *  现需求不支持文字缩放，旋转,若支持，去掉此判断：代码冗余
-                         */
-//                        if (stick instanceof ImgStick) {
+                    if (spacing(stick.sp[0], stick.sp[1], stick.sp[4], stick.sp[5]) < (stick instanceof ImgStick ? mMinScaleHeight : mMinTextScaleHeight)) {
                         stick.frameTransMatrix1.postScale(stick.minSacle, stick.minSacle, stick.mid.x, stick.mid.y);// 縮放
-//                        }
                         matrixCheck(stick.frameTransMatrix1, stick.fp, stick.stickBitmap);
                     } else {
-                        /**
-                         *  现需求不支持文字缩放，旋转,若支持，去掉此判断：代码冗余
-                         */
-//                        if (stick instanceof ImgStick) {
                         stick.frameTransMatrix1.postScale(scale, scale, stick.mid.x, stick.mid.y);// 縮放
-//                        }
                         matrixCheck(stick.frameTransMatrix1, stick.fp, stick.stickBitmap);
                     }
                     stick.frameMatrix.set(stick.frameTransMatrix1);
@@ -510,9 +455,24 @@ public class StickerSeriesView extends ImageView {
         return true;
     }
 
+    public void delStick(int categoryId, int position) {
+        for (int i = 0; i < mStickList.size(); i++) {
+            Stick stick = mStickList.get(i);
+            if (stick instanceof ImgStick) {
+                if (((ImgStick) stick).categoryId == categoryId && ((ImgStick) stick).position == position) {
+                    mStickList.remove(i);
+                    i--;
+                    break;
+                }
+            }
+
+        }
+        invalidate();
+    }
+
 
     private boolean isDeleltePoint(float x_down, float y_down, float[] sp) {
-        if (x_down <= sp[0] + range && x_down >= sp[0] - range && y_down <= sp[1] + range && y_down >= sp[1] - range) {
+        if (x_down <= sp[0] + mRange && x_down >= sp[0] - mRange && y_down <= sp[1] + mRange && y_down >= sp[1] - mRange) {
             return true;
         }
         return false;
@@ -520,10 +480,10 @@ public class StickerSeriesView extends ImageView {
 
 
     private boolean isZoomPoint(float x_down, float y_down, float[] p) {
-        if ((x_down <= p[0] + range && x_down >= p[0] - range && y_down <= p[1] + range && y_down >= p[1] - range) ||
-                (x_down <= p[6] + range && x_down >= p[6] - range && y_down <= p[7] + range && y_down >= p[7] - range) ||
-                (x_down <= p[2] + range && x_down >= p[2] - range && y_down <= p[3] + range && y_down >= p[3] - range) ||
-                (x_down <= p[4] + range && x_down >= p[4] - range && y_down <= p[5] + range && y_down >= p[5] - range)) {
+        if ((x_down <= p[0] + mRange && x_down >= p[0] - mRange && y_down <= p[1] + mRange && y_down >= p[1] - mRange) ||
+                (x_down <= p[6] + mRange && x_down >= p[6] - mRange && y_down <= p[7] + mRange && y_down >= p[7] - mRange) ||
+                (x_down <= p[2] + mRange && x_down >= p[2] - mRange && y_down <= p[3] + mRange && y_down >= p[3] - mRange) ||
+                (x_down <= p[4] + mRange && x_down >= p[4] - mRange && y_down <= p[5] + mRange && y_down >= p[5] - mRange)) {
             return true;
         }
         return false;
@@ -533,7 +493,7 @@ public class StickerSeriesView extends ImageView {
         //比较四个xy的最大值和最小值
         float[] xMM = getMaxAndMin(new float[]{p[0], p[2], p[4], p[6]});
         float[] yMM = getMaxAndMin(new float[]{p[1], p[3], p[5], p[7]});
-        //不用加yMM[0] + range
+        //不用加yMM[0] + mRange
         if (xMM[0] <= x_down && x_down <= xMM[1] && yMM[0] <= y_down && y_down <= yMM[1]) {
             return true;
         }
@@ -645,7 +605,7 @@ public class StickerSeriesView extends ImageView {
      * @param curY
      * @return
      */
-    private double getRorateDegrees(float centerX, float centerY, float saveX, float saveY, float curX, float curY) {
+    private double getRotateDegrees(float centerX, float centerY, float saveX, float saveY, float curX, float curY) {
         double a = Math.sqrt((saveX - curX) * (saveX - curX) + (saveY - curY) * (saveY - curY));
         double b = Math.sqrt((centerX - curX) * (centerX - curX) + (centerY - curY) * (centerY - curY));
         double c = Math.sqrt((saveX - centerX) * (saveX - centerX) + (saveY - centerY) * (saveY - centerY));
@@ -770,7 +730,7 @@ public class StickerSeriesView extends ImageView {
             stick.matrix.postScale(screenScale, screenScale, stick.oldMid.x + transW / 2, stick.oldMid.y + transH / 2);// 縮放
         }
         mLocTextSize *= screenScale;
-        LOCATION_PADDING *= screenScale;
+        mLocationPadding *= screenScale;
         mLocTextMargin *= screenScale;
         mLocBitmapWidth *= screenScale;
         zoomDisplayBitmap();
@@ -778,7 +738,7 @@ public class StickerSeriesView extends ImageView {
         //当显示为竖图时，拉大宽度，其它参数也要相应的变化
         bitmap = Bitmap.createBitmap(mBgWidth, mBgHeight, Config.ARGB_8888); // 背景图片
         Canvas canvas = new Canvas(bitmap); //新建画布
-        bgBitmap = BitmapUtil.zoomBitmap(bgBitmap, (int) scaleWidth, (int) scaleHeight, false);
+        bgBitmap = StickUtil.zoomBitmap(bgBitmap, (int) scaleWidth, (int) scaleHeight, false);
         canvas.drawBitmap(bgBitmap, leftMargin, topMargin, bitmapPaint);
         try {
             //绘制的先后顺序
@@ -846,12 +806,10 @@ public class StickerSeriesView extends ImageView {
         //算出初始位置
         stick.matrix.setTranslate((mBgWidth / 2 - originWidth / 2), (mBgHeight / 2 - originHeight / 2));
         if (stick instanceof TextStick) {
-            isEverShowText = true;
 //            stick.matrix.postScale(0.5f, 0.5f, (mBgWidth / 2), mBgHeight / 2);
         } else {
             //计算出要显示的scale；
-            int widthPx = Convert.dip2px(getContext(), Constant.STICK_WIDTH);
-            float scale = (float) widthPx / (float) originWidth;
+            float scale =  mStickWidth / (float) originWidth;
             stick.matrix.postScale(scale, scale, (mBgWidth / 2), mBgHeight / 2);
         }
         matrixCheck(stick.matrix, stick.sp, stick.stickBitmap);
@@ -988,40 +946,38 @@ public class StickerSeriesView extends ImageView {
 
 
     public void createFinalBitmap(final String originPath, final OnSaveResultListener listener) {
-        TaskExecutor.executeTask(new Runnable() {
+        new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     String savePath;
                     //2、压缩后的bitmap
                     //Bitmap   bitmap = BitmapUtil.getBitmap(mOriginalPhotoPath);
-                    Bitmap bitmap = BitmapUtil.getThumbBitmap(new File(originPath));
+                    Bitmap bitmap = StickUtil.getSimpleBitmap(originPath);
                     //根据sticker可见判断状态,FIT_CENTER/fitCenter这里要对bitmap获取width and height
                     Bitmap favouriteBitmap = creatFavouriteFixWithPhoto(bitmap);
                     savePath = savePhoto(favouriteBitmap, originPath);
-                    PhotoUtils.fileScan(StickApp.ins(), savePath);
+                    StickUtil.fileScan(getContext(), savePath);
                     if (favouriteBitmap != null && !favouriteBitmap.isRecycled()) {
                         favouriteBitmap.recycle();
                     }
-                    System.gc();
                     listener.onSaveResult(savePath);
                 } catch (Exception e) {
-                    Log.w(Ln.LOG_TAG, e);
                     listener.onSaveResult("");
                 }
             }
-        });
+        }).start();
 
     }
 
     private String savePhoto(Bitmap bitmap, String originPath) {
         File file = new File(originPath);
-        File saveDir = new File(FileUtil.STORE_PATH + "merge");
+        File saveDir = new File(Environment.getExternalStorageDirectory() + "/StickView/"+ "merge");
         if (!saveDir.exists()) {
             saveDir.mkdirs();
         } else {
             if (!saveDir.isDirectory()) {
-                FileUtil.deleteDirectory(saveDir.getAbsolutePath());
+                StickUtil.deleteDirectory(saveDir.getAbsolutePath());
                 saveDir.mkdirs();
             }
         }
@@ -1041,7 +997,6 @@ public class StickerSeriesView extends ImageView {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
             return saveFile.getAbsolutePath();
         } catch (FileNotFoundException e) {
-            Log.w(Ln.LOG_TAG, e);
         } finally {
             if (fos != null) {
                 try {
@@ -1058,6 +1013,19 @@ public class StickerSeriesView extends ImageView {
     public interface OnSaveResultListener {
          void onSaveResult(String saveFile);
     }
+
+    public static int dip2px(Context context, float dpValue) {
+        float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (dpValue * scale + 0.5f);
+    }
+
+    public static float getDensity(Context context) {
+        return  context.getResources().getDisplayMetrics().density;
+    }
+
+
+
+
 
 
 }

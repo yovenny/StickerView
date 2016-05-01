@@ -1,1 +1,1 @@
-include ':app', ':sticklib', ':FabricView'
+include ':app', ':sticklib'
