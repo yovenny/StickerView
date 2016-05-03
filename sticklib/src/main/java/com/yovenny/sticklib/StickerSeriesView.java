@@ -6,14 +6,11 @@ package com.yovenny.sticklib;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PointF;
-import android.graphics.Rect;
-import android.graphics.Typeface;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -45,16 +42,13 @@ public class StickerSeriesView extends ImageView {
     public  float mOutsideRadium = dip2px(getContext(), 14);
     private float mInsideRadium = dip2px(getContext(), 9);
     private float mStrokeWidth = dip2px(getContext(), 2);
-    private float mLocationPadding =dip2px(getContext(), 15);
     private float mMinScaleHeight = mOutsideRadium * 4;
     private float mMinTextScaleHeight = mOutsideRadium * 2;//3
     private float mRange = mOutsideRadium;
-    private float mLocTextSize = 12,mLocTextMargin = 8,mLocBitmapWidth = 9;
     //touch事件的位置记录
     private float x_down,y_down,savex, savey, curx, cury;
 
     //位置图标
-    private Bitmap mLocBitmap;
 
     // 生成图片leftTopMargin
     private float topMargin,leftMargin;
@@ -91,11 +85,6 @@ public class StickerSeriesView extends ImageView {
         return this;
     }
 
-    public StickerSeriesView locationPadding(float locationPadding){
-        mLocationPadding=dip2px(getContext(),locationPadding);
-        return this;
-    }
-
     //params setting =================================================================================================
 
 
@@ -117,7 +106,7 @@ public class StickerSeriesView extends ImageView {
     private OnStickTextDelListener mOnStickTextDelListener;
 
     public interface OnStickDelListener {
-         void onStickDel(int categoryId, int postion);
+         void onStickDel(Stick stick);
     }
 
     public interface OnStickTextDelListener {
@@ -136,8 +125,6 @@ public class StickerSeriesView extends ImageView {
 
     public StickerSeriesView(Context context) {
         super(context);
-        mLocBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_local_draw);
-        zoomDisplayBitmap();
         if (android.os.Build.VERSION.SDK_INT >= 11) {
             setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         }
@@ -145,19 +132,12 @@ public class StickerSeriesView extends ImageView {
 
     public StickerSeriesView(Context context, AttributeSet attrs) {
         super(context, attrs);
-
-        mLocBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_local_draw);
-        zoomDisplayBitmap();
         if (android.os.Build.VERSION.SDK_INT >= 11) {
             setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         }
     }
 
-    private void zoomDisplayBitmap() {
-        float tempScale = (float) mLocBitmap.getWidth() / (mLocBitmapWidth * mDensity);
-        float locScaleHeight = (float) mLocBitmap.getHeight() / tempScale;
-        mLocBitmap = StickUtil.zoomBitmap(mLocBitmap, (int) (mLocBitmapWidth * mDensity), (int) locScaleHeight,false);
-    }
+
 
 
     /**
@@ -187,34 +167,10 @@ public class StickerSeriesView extends ImageView {
     }
 
 
-    private void drawText(Canvas canvas) {
-        Paint paint = new Paint();
-        paint.setAntiAlias(true);
-        paint.setColor(Color.WHITE);
-        paint.setStyle(Paint.Style.FILL);
-        if (!TextUtils.isEmpty(mLocationStr)) {
-            paint.setStrokeWidth(2 * mDensity); // 线宽
-            paint.setTextSize(mLocTextSize * mDensity);
-            paint.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
-//            paint.setFakeBoldText(true);
-            paint.setColor(Color.WHITE);
-            paint.setTextAlign(Paint.Align.RIGHT);
-            Rect rect = new Rect();
-            paint.getTextBounds(mLocationStr, 0, mLocationStr.length(), rect);
-            float w = rect.width();
-//            int w = (int) paint.measureText(mLocationStr);
-            Paint.FontMetricsInt fontMetrics = paint.getFontMetricsInt();
-            //根据实际显示的图片，绘制坐标文字
-            float baseline = mBgHeight - topMargin - fontMetrics.bottom - mLocationPadding;
-            canvas.drawText(mLocationStr, mBgWidth - leftMargin - mLocationPadding, baseline, paint);// 文字位置
-            canvas.drawBitmap(mLocBitmap, mBgWidth - leftMargin - mLocationPadding - w - mLocBitmap.getWidth() - mLocTextMargin * mDensity, baseline - mLocBitmap.getHeight(), paint);
-        }
-    }
 
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         canvas.save();
-        drawText(canvas);
         drawStickAndTexByHandle(canvas);
         canvas.restore();
 
@@ -256,7 +212,7 @@ public class StickerSeriesView extends ImageView {
                 mStickList.remove(stick);
                 if (stick instanceof ImgStick) {
                     if (mOnStickDelListener != null) {
-                        mOnStickDelListener.onStickDel(((ImgStick) stick).categoryId, ((ImgStick) stick).position);
+                        mOnStickDelListener.onStickDel(stick);
                     }
                 } else {
                     if (mOnStickTextDelListener != null) {
@@ -454,22 +410,6 @@ public class StickerSeriesView extends ImageView {
         }
         return true;
     }
-
-    public void delStick(int categoryId, int position) {
-        for (int i = 0; i < mStickList.size(); i++) {
-            Stick stick = mStickList.get(i);
-            if (stick instanceof ImgStick) {
-                if (((ImgStick) stick).categoryId == categoryId && ((ImgStick) stick).position == position) {
-                    mStickList.remove(i);
-                    i--;
-                    break;
-                }
-            }
-
-        }
-        invalidate();
-    }
-
 
     private boolean isDeleltePoint(float x_down, float y_down, float[] sp) {
         if (x_down <= sp[0] + mRange && x_down >= sp[0] - mRange && y_down <= sp[1] + mRange && y_down >= sp[1] - mRange) {
@@ -729,11 +669,6 @@ public class StickerSeriesView extends ImageView {
             stick.matrix.postTranslate(transW / 2, transH / 2);
             stick.matrix.postScale(screenScale, screenScale, stick.oldMid.x + transW / 2, stick.oldMid.y + transH / 2);// 縮放
         }
-        mLocTextSize *= screenScale;
-        mLocationPadding *= screenScale;
-        mLocTextMargin *= screenScale;
-        mLocBitmapWidth *= screenScale;
-        zoomDisplayBitmap();
 
         //当显示为竖图时，拉大宽度，其它参数也要相应的变化
         bitmap = Bitmap.createBitmap(mBgWidth, mBgHeight, Config.ARGB_8888); // 背景图片
@@ -751,7 +686,6 @@ public class StickerSeriesView extends ImageView {
                 }
 
             }
-            drawText(canvas);
             //对图片进行裁剪：
             //topmargin+1px 是因为改变actionbar高度后，裁剪时出现黑线，如果要去掉加1px ,则回复actionbar的高度48dp
             saveBitmap = Bitmap.createBitmap(bitmap, (int) leftMargin, (int) topMargin + 1, (int) scaleWidth, (int) scaleHeight - 1);
@@ -881,27 +815,10 @@ public class StickerSeriesView extends ImageView {
         return count;
     }
 
-    //获取图片水印分类ids
-    public ArrayList getStickCategoryIds() {
-        ArrayList<Integer> categoryIds = new ArrayList<>();
-        for (Stick stick : mStickList) {
-            if (stick instanceof ImgStick) {
-                categoryIds.add(((ImgStick) stick).categoryId);
-            }
-        }
-        return categoryIds;
+    public ArrayList<Stick> getStickList(){
+        return (ArrayList<Stick>) mStickList;
     }
 
-    //获取图片水印的ids
-    public ArrayList getStickIds() {
-        ArrayList<Integer> watermarkIds = new ArrayList<>();
-        for (Stick stick : mStickList) {
-            if (stick instanceof ImgStick) {
-                watermarkIds.add(((ImgStick) stick).watermarkId);
-            }
-        }
-        return watermarkIds;
-    }
 
     //获取文字水印的ids
     public ArrayList getTextContents() {

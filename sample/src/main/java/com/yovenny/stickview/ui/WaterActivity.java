@@ -26,7 +26,6 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.yovenny.sticklib.ImgStick;
 import com.yovenny.sticklib.Stick;
 import com.yovenny.sticklib.StickerSeriesView;
 import com.yovenny.sticklib.TextStick;
@@ -112,7 +111,7 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
 
     public void initUI() {
         mSticker = (StickerSeriesView) findViewById(R.id.process_sticker);
-        mSticker.outsideRadium(14).insideRadium(9).stickWidth(150).strokeWidth(2).locationPadding(15);
+        mSticker.outsideRadium(14).insideRadium(9).stickWidth(150).strokeWidth(2);
         mWaterMarkRadio = (TextView) findViewById(R.id.watermark_radio);
         mTextImage = (ImageView) findViewById(R.id.text_image);
         mTab = (PagerSlidingTabStrip) findViewById(R.id.tabs);
@@ -135,14 +134,18 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
         mInputConfirmImage.setOnClickListener(this);
         mSticker.setOnStickDelListener(new StickerSeriesView.OnStickDelListener() {
             @Override
-            public void onStickDel(int categoryId, int postion) {
-                mWaterAdapter.removeItemCheck(categoryId, postion);
+            public void onStickDel(Stick stick) {
+                if (stick instanceof ImgParamStick) {
+                    ImgParamStick imgParamStick = (ImgParamStick) stick;
+                    mWaterAdapter.removeItemCheck(imgParamStick.categoryId, imgParamStick.position);
+                }
+
             }
         });
         mSticker.setOnStickTextDelListener(new StickerSeriesView.OnStickTextDelListener() {
             @Override
             public void onStickTextDel() {
-//                mGatherTextCheck.setChecked(false, false);
+
             }
         });
 
@@ -164,12 +167,12 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
         final List<WaterMarkCategory> categoryList = dbManager.getWaterCategoryDAO().findValid();
         if (categoryList.size() > 0) {
             final List<Integer> nextXs = new ArrayList<>();
-           String[] titles=new String[categoryList.size()];
+            String[] titles = new String[categoryList.size()];
 
-            for (int i=0;i<categoryList.size();i++) {
-                WaterMarkCategory waterMarkCategory=categoryList.get(i);
+            for (int i = 0; i < categoryList.size(); i++) {
+                WaterMarkCategory waterMarkCategory = categoryList.get(i);
                 waterMarkCategory.setWaterMarkItems(dbManager.getWaterItemDAO().findValid(waterMarkCategory.getCid()));
-                titles[i]=waterMarkCategory.getName();
+                titles[i] = waterMarkCategory.getName();
                 nextXs.add(0);
             }
             mWaterAdapter = new WaterAdapter(this, categoryList.get(0).waterMarkItems);
@@ -177,7 +180,7 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
             mTab.setShouldExpand(true);
             mTab.setIndicatorColor(R.color.common_front_color);
             mTab.setIndicatorHeight((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()));
-            mTab.setTitles(titles,new PagerSlidingTabStrip.OnTabChangeListener() {
+            mTab.setTitles(titles, new PagerSlidingTabStrip.OnTabChangeListener() {
                 @Override
                 public void onTabChange(int position) {
                     //更改水印的适配器
@@ -198,13 +201,24 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
                         onStickSelect(position, item);
                     } else {
                         mWaterAdapter.removeItemCheck(item.getCategoryId(), position);
-                        mSticker.delStick(item.getCategoryId(), position);
+                        // 删除stick,将删除的业务放在这边
+                        ArrayList<Stick> stickList = mSticker.getStickList();
+                        for (int i = 0; i < stickList.size(); i++) {
+                            Stick stick = stickList.get(i);
+                            if (stick instanceof ImgParamStick) {
+                                if (((ImgParamStick) stick).categoryId == item.getCategoryId() && ((ImgParamStick) stick).position == position) {
+                                    stickList.remove(i);
+                                    i--;
+                                    break;
+                                }
+                            }
+                        }
+                        mSticker.invalidate();
                     }
                 }
             });
         }
     }
-
 
 
     private void onStickSelect(int position, WaterMarkItem item) {
@@ -218,7 +232,7 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
         if (sampleBitamp == null) {
             po("加载水印失败");
         } else {
-            Stick stick = new ImgStick(sampleBitamp, item.getCategoryId(), item.getWid(), position);
+            Stick stick = new ImgParamStick(sampleBitamp, item.getCategoryId(), item.getWid(), position);
             mSticker.setStick(stick);
         }
     }
@@ -358,12 +372,12 @@ public class WaterActivity extends BaseActivity implements View.OnClickListener 
                 if (isNeedResult) {
                     Intent intent = new Intent();
                     intent.putExtra(ADD_TOPIC_PIC, saveFile);
-                    intent.putExtra("watermarkCategoryIds", mSticker.getStickCategoryIds());
-                    intent.putExtra("watermarkIds", mSticker.getStickIds());
+                    intent.putExtra("watermarkCategoryIds", ImgParamStick.getStickCategoryIds(mSticker.getStickList()));
+                    intent.putExtra("watermarkIds", ImgParamStick.getStickIds(mSticker.getStickList()));
                     intent.putExtra("contents", mSticker.getTextContents());
                     setResult(PHOTO_RESULT, intent);
                 } else {
-                    UIHelper.showResultActivity(WaterActivity.this, saveFile, mSticker.getStickCategoryIds(), mSticker.getStickIds(), mSticker.getTextContents());
+                    UIHelper.showResultActivity(WaterActivity.this, saveFile,  ImgParamStick.getStickCategoryIds(mSticker.getStickList()),ImgParamStick.getStickIds(mSticker.getStickList()), mSticker.getTextContents());
                 }
                 mSticker.destory();
                 finish();

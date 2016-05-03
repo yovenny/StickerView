@@ -2,16 +2,9 @@ package com.yovenny.sticklib;
 
 import android.graphics.Bitmap;
 
-//
+//图片标签
 public class ImgStick extends Stick {
-    public int categoryId=-1;
-    public int position=-1;
-    public int watermarkId=-1;
-
-    public ImgStick(Bitmap stickBitmap,int categoryId,int watermarkId,int position) {
+    public ImgStick(Bitmap stickBitmap) {
         super(stickBitmap);
-        this.categoryId=categoryId;
-        this.position=position;
-        this.watermarkId=watermarkId;
     }
 }

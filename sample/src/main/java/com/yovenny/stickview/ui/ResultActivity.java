@@ -84,7 +84,5 @@ public class ResultActivity extends BaseActivity {
             List ids = intent.getIntegerArrayListExtra("watermarkIds");
             List contents = intent.getStringArrayListExtra("contents");
         }
-
-
     }
 }

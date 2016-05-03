@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.PointF;
 
-//
+//标签基类
 public class Stick {
     public boolean isShowStick=true;
     public boolean isHideFrame;
