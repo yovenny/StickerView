@@ -15,7 +15,16 @@
 - 卡顿问题,对比其他相同标签图片lib,本库流畅度明显比较差.(需查出并更正)
 - 锯齿问题,图片生成会出现锯齿(需查出并更正)
 
+## 我目前找到的相似效果:(推荐下面两个lib)
+- sangmingming:https://github.com/sangmingming/StickerView.git
+- Skykai521:https://github.com/Skykai521/StickerCamera.git
+
 ## sample 本地标签的实现方案
+
+## 涉及到公司版权的问题:我只将library提交(界面,素材,元素并未加入),实际例子可以下载任议球,该app已下架,服务已停止运行.
+https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=1&tn=98050039_pg&wd=%E4%BB%BB%E8%AE%AE%E7%90%83&oq=java%20%E5%AF%B9%E8%B1%A1%E6%AF%94%E8%BE%83&rsv_pq=cc28df32003702ce&rsv_t=168cyIApnf1rJBexyw4USjXqFakiQq3ijA6mUQYyYQ65aFs49O4oxr1ozVteiZpvEds&rsv_enter=1&rsv_sug3=12&rsv_sug1=10&rsv_sug7=100&rsv_sug2=0&inputT=10958&rsv_sug4=10958
+经得同意再提交吧.
+
 **app需初始化一批标签在本地,具体的做法是:**
 
 - 将标签图片以目录文件的形式存放在assets中的water目录下(其中每个category为一个目录).
@@ -47,3 +56,7 @@ compile 'com.yovenny.StickView:sticklib:1.0.0'
                   android:layout_width="match_parent"
                   android:layout_height="match_parent" />
 ```
+
+## About me
+- email:1312397605@qq.com
+
