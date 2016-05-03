@@ -15,7 +15,7 @@
 - 卡顿问题,对比其他相同标签图片lib,本库流畅度明显比较差.(需查出并更正)
 - 锯齿问题,图片生成会出现锯齿(需查出并更正)
 
-## Similar results are found: (recommend the following lib)
+## Similarity(recommend)
 - sangmingming:https://github.com/sangmingming/StickerView.git
 - Skykai521:https://github.com/Skykai521/StickerCamera.git
 
