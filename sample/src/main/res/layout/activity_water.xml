@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical">
+
+    <!--默认显示滤镜 -->
+    <RelativeLayout
+        android:id="@+id/process_menu_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="152dp"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/process_comment_bg_color">
+
+
+        <com.yovenny.stickview.ui.PagerSlidingTabStrip
+            android:id="@+id/tabs"
+            android:layout_alignParentBottom="true"
+            android:layout_width="match_parent"
+            android:layout_height="48dip" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/watermark_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/tabs" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/choose_menu"
+        android:layout_width="fill_parent"
+        android:layout_height="48dp"
+        android:layout_above="@id/process_menu_bottom"
+        android:background="@color/process_comment_bg_color">
+
+        <!--解决适配问题-->
+        <RelativeLayout
+            android:id="@+id/water_linear"
+            android:layout_width="37dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="15dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/watermark_radio"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:longClickable="true"
+                android:text="水印"
+                android:textColor="#5fc344"
+                android:textSize="18sp" />
+
+            <ImageView
+                android:id="@+id/process_water_tip_up"
+                android:layout_width="wrap_content"
+                android:layout_height="4dp"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="3dp"
+                android:src="@drawable/ic_process_tip_up" />
+
+        </RelativeLayout>
+
+        <ImageView
+            android:id="@+id/text_image"
+            android:layout_width="@dimen/process_menu_item_size"
+            android:layout_height="@dimen/process_menu_item_size"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="80dp"
+            android:background="@drawable/process_text_menu_add_select"
+            android:button="@null" />
+
+        <View
+            android:layout_width="1px"
+            android:layout_height="21dp"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="13dp"
+            android:layout_toLeftOf="@id/text_image"
+            android:background="#312f2f" />
+    </RelativeLayout>
+        <com.yovenny.sticklib.StickerSeriesView
+            android:layout_above="@id/choose_menu"
+            android:background="#131413"
+            android:scaleType="fitCenter"
+            android:id="@+id/process_sticker"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <RelativeLayout
+           android:visibility="gone"
+            android:id="@+id/text_relative"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <EditText
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:gravity="center"
+                android:id="@+id/gather_edit"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_centerInParent="true"
+                android:layout_marginLeft="@dimen/common_btn_margin"
+                android:layout_marginRight="@dimen/common_btn_margin"
+                android:background="@drawable/process_bottom_color"
+                android:textColor="@color/white"
+                android:textSize="20sp" />
+
+            <ImageView
+                android:id="@+id/cancel_image"
+                android:layout_width="@dimen/common_dialog_btn_width_height"
+                android:layout_height="@dimen/common_dialog_btn_width_height"
+                android:layout_alignLeft="@id/gather_edit"
+                android:layout_alignTop="@id/gather_edit"
+                android:layout_marginLeft="@dimen/common_little_btn_margin"
+                android:layout_marginTop="@dimen/common_little_btn_margin"
+                android:padding="@dimen/comment_icon_dialog_padding"
+                android:src="@drawable/common_dialog_cancel_bg_selector" />
+
+
+            <ImageView
+                android:id="@+id/confirm_image"
+                android:layout_width="@dimen/common_dialog_btn_width_height"
+                android:layout_height="@dimen/common_dialog_btn_width_height"
+                android:layout_alignRight="@id/gather_edit"
+                android:layout_alignTop="@id/gather_edit"
+                android:layout_marginRight="@dimen/common_little_btn_margin"
+                android:layout_marginTop="@dimen/common_little_btn_margin"
+                android:padding="@dimen/comment_icon_dialog_padding"
+                android:src="@drawable/common_dialog_confirm_bg_selector" />
+        </RelativeLayout>
+    </RelativeLayout>

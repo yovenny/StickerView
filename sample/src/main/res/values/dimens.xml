@@ -1,0 +1,17 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="process_menu_item_size">21dp</dimen>
+    <dimen name="common_btn_margin">20dp</dimen>
+    <dimen name="common_little_btn_margin">-20dp</dimen>
+    <dimen name="comment_icon_dialog_padding">10dp</dimen>
+    <dimen name="common_dialog_btn_width_height">40dp</dimen>
+
+    <!-- textsize-->
+    <dimen name="tab_title_text_size">15sp</dimen>
+    <dimen name="process_title_text_size">14sp</dimen>
+    <dimen name="process_water_width">61dp</dimen>
+    <dimen name="process_bottom_height">40dp</dimen>
+    <dimen name="tab_item_height">35dp</dimen>
+</resources>
