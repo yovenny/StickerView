@@ -20,12 +20,6 @@
 - Skykai521:https://github.com/Skykai521/StickerCamera.git
 
 
-## Copyright
-
-**涉及到公司版权的问题:我只将library提交(界面,素材,元素并未加入),实际例子可以下面链接下载任议球,该app已下架,服务已停止运行.经得同意再提交吧.**
-[任议球](https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=1&tn=98050039_pg&wd=%E4%BB%BB%E8%AE%AE%E7%90%83&oq=java%20%E5%AF%B9%E8%B1%A1%E6%AF%94%E8%BE%83&rsv_pq=cc28df32003702ce&rsv_t=168cyIApnf1rJBexyw4USjXqFakiQq3ijA6mUQYyYQ65aFs49O4oxr1ozVteiZpvEds&rsv_enter=1&rsv_sug3=12&rsv_sug1=10&rsv_sug7=100&rsv_sug2=0&inputT=10958&rsv_sug4=10958)
-
-
 ## sample 本地标签的实现方案
 **app需初始化一批标签在本地,具体的做法是:**
 
